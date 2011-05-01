@@ -1,0 +1,20 @@
+- Allow default values for remaining primitive types
+
+    Currently only int, bool, float and string are supported. The date/time
+    types need support.
+
+- Allow for more configuration of output filenames
+
+    Output file extensions, naming style (including lowercase locking,
+    camel-case etc, should all be configurable from the command-line.
+
+- Allow for more configuration of output code
+
+    Member/accessor naming styles, type naming etc, should be configurable
+    from the command-line.
+
+- Check for name/ordinal clashes in inherited messages.
+
+    Currenly clashes are only detected within single messages. Clashing
+    names and/or ordinals are not detected within inherited messages.
+

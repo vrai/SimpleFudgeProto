@@ -1,0 +1,380 @@
+.\" Copyright (C) 2011 - 2011, Vrai Stacey.
+.\"
+.\" Licensed under the Apache License, Version 2.0 (the "License");
+.\" you may not use this file except in compliance with the License.
+.\" You may obtain a copy of the License at
+.\"
+.\"     http://www.apache.org/licenses/LICENSE-2.0
+.\"
+.\" Unless required by applicable law or agreed to in writing, software
+.\" distributed under the License is distributed on an "AS IS" BASIS,
+.\" WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+.\" See the License for the specific language governing permissions and
+.\" limitations under the License.
+.\"
+.TH "simplefudgeproto" "1" "2011-03-05" "simplefudgeproto 0.1.0" "SimpleFudgeProto code generator"
+.SH "NAME"
+simplefudgeproto \- generates C++/FudgeMsg bindings from proto-like definition files
+.\"
+.\" ===================================================================================
+.\"
+.SH "SYNOPSIS"
+.B simplefudgeproto
+[-hvV] [-t TARGETDIR] -l LANGUAGE PROTOFILE
+.\"
+.\" ===================================================================================
+.\"
+.SH "DESCRIPTION"
+\fISimplefudgeproto\fR is a generator for C++/FudgeMsg bindings. A structure (or structures)
+specified in a proto-like format is used to generate a C++ equivalent that can be serialised
+to, or constructed from a \fBFudgeMsg\fR\&\s-2\u[1]\d\s+2\&. The structure specification
+grammar is a cut down version of \fBFudgeProto\fR\&\s-2\u[2]\d\s+2\&. The differences between
+the offical and the support grammar are explained in the \fBPROTO LANGUAGE\fR section below\&.
+.sp
+In typical usage, the generated files will be written to a different directory from the proto
+files; for example:
+.sp
+.RS 4
+.nf
+\f[CR]simplefudgeproto -t ../builddir -l cpp some_proto_file.proto\fR
+.if
+.RE
+.\"
+.\" ===================================================================================
+.\"
+.SH "OPTIONS"
+.PP
+\fB-h,--help\fR
+.RS 4
+Display the usage information\&.
+.RE
+.PP
+\fB-v,--version\fR
+.RS 4
+Display the version information\&.
+.RE
+.PP
+\fB-V,--verbose\fR
+.RS 4
+Generate verbose output while running\&.
+.RE
+.PP
+\fB-l,--language=\fR
+.RS 4
+Programming language in which to generate code\&. Currently supports only \(lqcpp\(rq, which
+produces C++ code\&.
+.RE
+.PP
+\fB-t,--target=\fR
+.RS 4
+Target directory for generated files\&. If absent, defaults to the current working
+directory.\&.
+.RE 4
+.\" ===================================================================================
+.\"
+.SH "BUGS"
+Almost certainly. See the \fITODO\fR file for a list of future changes/improvements.
+.\"
+.\" ===================================================================================
+.\"
+.SH "LICENSE"
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License\&.
+You may obtain a copy of the License at\&.
+.sp
+    http://www.apache.org/licenses/LICENSE-2.0
+.sp
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied\&.
+See the License for the specific language governing permissions and
+limitations under the License\&.
+.\"
+.\" ===================================================================================
+.\"
+.SH "PROTO LANGUAGE GRAMMAR"
+This is a description of the \fBFudgeProto\fR language as supported by
+\fIsimplefudgeproto\fR.
+.sp
+A proto file contains one of more message definitions and references to external message
+defintions, contained within (optional) namespaces. Each of the message definitions will
+be used to generate a type in the target language\&.
+.IP "\fBnamespace\fR IDENT { ... }"
+One or more namespaces may be used to wrap message definitions. Depending on the target
+language these will be applied to the generated messages in the idiomatic way (e.g. as
+actual namespaces in C++). Multiple identifiers may be used in a single namespace
+definition, separated by periods\&.
+.sp
+For example, the following namespace definitions are identical:
+.sp
+.nf
+\f[CR]namespace toplevel {
+    namespace midlevel {
+        namespace lowlevel {
+            ...
+        }
+    }
+}
+
+namespace toplevel.midlevel.lowlevel {
+    ...
+}\fR
+.fi
+.sp
+.IP "\fBmessage\fR IDENT [\fBextends\fR IDENT[, ...]] { ... }"
+A proto-file should contain one or more message definitions. A message definition
+should contain one or more field defintions. Each message definition will map to a
+single class/structure in the generated code. A message may inherit from one or more
+other message defintions, either defined within the same proto file or referenced using
+an \fBextern\fR statement. Circular inheritance structures are not supported!
+.sp
+The order in which the messages are definited/referenced within a file is not
+important\&.
+.sp
+A simple inheritance structure:
+.sp
+.nf
+\f[CR]message Vehicle {
+    ...
+}
+
+message PoweredVehicle extends Vehicle {
+    ...
+}
+
+message Truck extends PoweredVehicle,
+                      Wheeled {
+    ...
+}
+
+message Wheeled {
+    ...
+}\fR
+.fi
+.sp
+.IP "\fBextern message\fR IDENT;"
+A reference to a message defintion from an external file. Should be in the same
+namespace as the original file defintion\&.
+.sp
+.nf
+\f[CR]=== FILE 1 ===
+namespace some.name {
+    message ExampleMessage {
+        ...
+    }
+}
+
+=== FILE 2 ===
+namespace some {
+    namespace name {
+        extern message ExampleMessage;
+    }
+}
+
+message AnotherMessage
+{
+    required exampleMessage some.name.ExampleMessage;
+    ...
+}\fR
+.fi
+.sp
+.IP "[MODIFIER[, ...] TYPE [ARRAYDEFS] IDENT[=ORDINAL] [\e[\fBdefault\fR=VALUE\e]];"
+Message defintions should contain one or more field definitions. At the very minimum a
+field definition should contain a type and a name. This will produce an optional field
+with no ordinal or default value. Field names must be unique within the message, they
+are used as the member name within the generated code. An ordinal is not required, but
+if one is provided it should be unique within the message and non-zero\&.
+.sp
+Default values can be provided for non-array, primitive types. In the case of
+\fBstring\fR fields, the value should be contained within double-quotes. Standard
+C style character escaping is supported\&.
+.sp
+.nf
+\f[CR]required int defaultInt [default=123];
+optional float ordinalFloat = 1 [default = 1.23];
+string defaultString [default="123"];\fR
+.fi
+.sp
+Array definitions are suffixes to the type that specifiy one or more dimensions;
+where each dimension is either unbounded (empty square-brackets) or of a fixed size
+(size within square brackets). The dimensions are ordered from inner-most to
+outer-most; so an array of integer pairs would be \(lqint[2][]\(rq\&.
+.sp
+.nf
+\f[CR]required double[4][4] projectionMatrix;
+string[] stringArrayWithOrdinal = 5;
+optional long[2][] coordinates;\fR
+.fi
+.sp
+Supported types and modifiers are listed in the next section\&.
+.IP "\fBenum\fR IDENT { [IDENT [=VALUE][; ...];] }"
+C style enums are supported. Unless explicitly set, each element's value will be one
+greater than that of the preceding; starting from zero. Any valid integer may be used
+as a value\&.
+.sp
+.nf
+\f[CR]enum TestEnum {
+    FirstValue;        // = 0
+    SecondValue;       // = 1
+    ThirdValue = -123;
+    FourthValue;       // = -122
+}\fR
+.fi
+.IP "// Comment"
+Single line comment. All text until the end of the current line is ignored by the
+parser\&.
+.IP "/* Comment ... */"
+Multi line comment. All text between the markers is ignored by the parser. Multi
+line comments should not be nested!
+.P
+.\"
+.\" ===================================================================================
+.\"
+.SH "PROTO LANGUAGE TYPES / MODIFIERS"
+All supported Fudge types are available in \fIsimplefudgeproto\fR, along with any
+user types (messages or enums) declared/referenced within the proto file. User types
+can be referenced using either relative or absolute namespaces (with each element of
+the namespace separated by periods)\&.
+.sp
+Built-in types:
+.IP \[bu] 2
+\fBbool\fR / \fBboolean\fR :
+Boolean value, either \fIFUDGE_TRUE\fR or \fIFUDGE_FALSE\fR\&.
+.IP \[bu] 2
+\fBbyte\fR / \fBint8\fR :
+8 bit signed integer\&.
+.IP \[bu] 2
+\fBshort\fR / \fBint16\fR :
+16 bit signed integer\&.
+.IP \[bu] 2
+\fBint\fR / \fBint32\fR :
+32 bit signed integer\&.
+.IP \[bu] 2
+\fBlong\fR / \fBint64\fR :
+64 bit signed integer\&.
+.IP \[bu] 2
+\fBfloat\fR :
+32 bit floating point\&.
+.IP \[bu] 2
+\fBdouble\fR :
+64 bit floating point\&.
+.IP \[bu] 2
+\fBstring\fR :
+Unicode string\&.
+.IP \[bu] 2
+\fBdate\fR :
+A variable precision date\&.
+.IP \[bu] 2
+\fBtime\fR :
+A variable precision time\&.
+.IP \[bu] 2
+\fBdatetime\fR :
+Combination of \fBdate\fR and \fBtime\fR\&.
+.P
+All types can be made in to array types using the array dimension suffix (see previous
+section)\&.
+.sp
+A subset of the full \fBFudgeProto\fR field modifier set is supported by
+\fIsimplefudgeproto\fR. Currently this is limited to two modifiers:
+.IP \[bu] 2
+\fBrequired\fR
+.RS 2
+The field must have a value. Primitive types will default to zero/empty and arrays will
+default to empty. However message types will default to unset and so must be set before
+attempted to encode the message type\&.
+.RE
+.IP \[bu] 2
+\fBoptional\fR
+.RS 2
+The field may be left unset, if this is the case it will not be present in the encoded
+FudgeMsg. By default optional fields are in an unset set, unless a default value has
+been provided; if a default value is present the field will be initialised as set
+(containing said value)\&.
+.RE
+.P
+If no modifiers are provided, the field is considered \(lqoptional\(rq\&.
+.\"
+.\" ===================================================================================
+.\"
+.SH "PROTO LANGUAGE EXAMPLE"
+Below is a \fIsimplefudgeproto\fR compatible message definition:
+.sp
+.RS 4
+.nf
+\f[CR]// Both C++ style single line ...
+/* ... and C style multi-line comments
+ * are supported.
+ */
+namespace example
+{
+    namespace elsewhere
+    {
+        extern msg externalMessage;
+    }
+
+    message localMessage
+    {
+        int[8] arrayOfInts;
+        string stringWithOrdinalAndDefault = 2 [default="Some String"];
+        required elsewhere.externalMessage theExtMessage;
+    }
+
+    message coordMessage
+    {
+        required double [3][] threeDimensionalCoords;
+    }
+
+    message superMessage extends localMessage, example.coordMessage
+    {
+        // All fields are inherited from localMessage
+        // and coordMessage.
+    }
+}\fR
+.fi
+.RE
+.\"
+.\" ===================================================================================
+.\"
+.SH "PROTO LANGUAGE NOTES"
+Differences between support grammar and that specified on the
+\fBFudgeProto\fR\&\s-2\u[2]\d\s+2\& wiki:
+.IP \[bu] 2
+No support for taxonomies (\(lqtaxonomy\(rq keyword is not currently reserved but should
+not be used as a namespace/message/field name\&.
+.IP \[bu] 2
+Language specific bindings are not supported. The \(lqbinding\(rq is not reserved and
+will not be supported by future implementations)\&.
+.IP \[bu] 2
+Message fields must have names. This is not required by the specification (an ordinal
+may be used as an alternative to a name) but is by \fIsimplefudgeproto\fR; as the field
+name is used to determine the corresponding member name in the generated code. Field
+ordinals are supported, but only in tandem with a field name\&.
+.IP \[bu] 2
+The \(lqrepeated\(rq keyword is unsupported; it is a keyword but the parser will exit
+with an error if it's encountered. For multiple values within the same named field use
+arrays\&.
+.IP \[bu] 2
+The \(lqreadonly\(rq and \(lqmutable\(rq are ignored. They are keywords and will be
+parsed without error; but will have no effect on the generated code. All fields will
+have both a getter and a setter\&.
+.sp
+This may change in future versions of \fIsimplefudgeproto\fR\&.
+.\"
+.\" ===================================================================================
+.\"
+.SH "AUTHOR"
+Copyright \(co 2011, Vrai Stacey (vrai.stacey@gmail.com)
+.\"
+.\" ===================================================================================
+.\"
+.SH "NOTES"
+.IP "1." 4
+FudgeMsg specification
+.RS 4
+\%http://fudgemsg.org/
+.RE
+.IP "2." 4
+FudgeProto Wiki
+.RS 4
+http://wiki.fudgemsg.org/display/FDG/Fudge+Proto
+.RE

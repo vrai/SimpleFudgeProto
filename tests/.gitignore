@@ -1,0 +1,9 @@
+*.o
+.deps
+*.log
+*.dat
+*.dSYM
+built_*.?pp
+test_flatmessage
+test_parser
+test_nestedmessage

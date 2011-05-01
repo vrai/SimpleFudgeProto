@@ -1,0 +1,11 @@
+config.h
+config.h.in*
+stamp-h1
+*.o
+*.a
+.deps
+protoparser.cc
+protoparser.h
+protolexer.cc
+simplefudgeproto
+*.dSYM
