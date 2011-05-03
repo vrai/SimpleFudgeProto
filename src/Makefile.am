@@ -17,8 +17,35 @@ noinst_LIBRARIES = libsimplefudgeproto.a
 
 man1_MANS = simplefudgeproto.1
 
+EXTRA_DIST = simplefudgeproto.1
+
 AM_YFLAGS = -d
 AM_LFLAGS =
+
+noinst_HEADERS = ast.hpp		\
+                 astdumper.hpp		\
+                 astextrefs.hpp 	\
+                 astflattener.hpp 	\
+                 astgenerator.hpp 	\
+                 astindex.hpp 		\
+                 astindexer.hpp 	\
+                 astrenamer.hpp 	\
+                 astresolver.hpp 	\
+                 astwalker.hpp 		\
+                 codewriter.hpp 	\
+                 codewriterfactory.hpp 	\
+                 config.h.in 		\
+                 constants.hpp 		\
+                 cppheaderwriter.hpp 	\
+                 cppimplwriter.hpp 	\
+                 cppwriter.hpp 		\
+                 cppwriterfactory.hpp 	\
+                 filenamegenerator.hpp 	\
+                 libsimplefudgeproto.a 	\
+                 memoryutil.hpp 	\
+                 parser.hpp		\
+		 stage.hpp		\
+		 template.hpp
 
 libsimplefudgeproto_a_SOURCES = ast.cpp			\
 				astdumper.cpp		\
@@ -43,13 +70,19 @@ libsimplefudgeproto_a_SOURCES = ast.cpp			\
 				protoparser.yy		\
 				stage.cpp
 
+BUILT_SOURCES = protolexer.cc 	\
+		protoparser.h 	\
+		protoparser.cc
+
 simplefudgeproto_SOURCES = simplefudgeproto_main.cpp
 simplefudgeproto_LDADD	 = libsimplefudgeproto.a
 
-# Automake's dependency handling requires a little help
-protolexer.o: protolexer.cc protoparser.h
-
 clean-local:
 	$(RM) protolexer.cc protoparser.h protoparser.cc
+
+dist-hook:
+	for file in $(BUILT_SOURCES) $(noinst_LIBRARIES); do  \
+	    $(RM) -f $(distdir)/$$file;	  \
+	done
 
 

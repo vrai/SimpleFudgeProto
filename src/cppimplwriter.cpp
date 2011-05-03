@@ -101,7 +101,7 @@ void cppimplwriter::classFields ( const messagedef & message )
     --m_depth;
     m_output << "}" << std::endl
              << std::endl
-             << path << "::" << name << " (const fudge::message & source)" << std::endl
+             << path << "::" << name << " (const ::fudge::message & source)" << std::endl
              << "{" << std::endl
              << s_indent << "fromFudgeMessage (source);" << std::endl
              << "}" << std::endl
@@ -119,7 +119,7 @@ void cppimplwriter::classFields ( const messagedef & message )
              << std::endl;
 
     // Generate encoder method
-    m_output << "fudge::message " << path << "::asFudgeMessage ( ) const" << std::endl
+    m_output << "::fudge::message " << path << "::asFudgeMessage ( ) const" << std::endl
              << "{" << std::endl;
     ++m_depth;
     outputEncoderWrapper ( message );
@@ -128,7 +128,7 @@ void cppimplwriter::classFields ( const messagedef & message )
              << std::endl;
 
     // Generate the real encoder method
-    m_output << "void " << path << "::toFudgeMessage (fudge::message & target) const" << std::endl
+    m_output << "void " << path << "::toFudgeMessage (::fudge::message & target) const" << std::endl
             << "{" << std::endl;
     ++m_depth;
     std::for_each ( message.fields ( ).begin ( ),
@@ -139,7 +139,7 @@ void cppimplwriter::classFields ( const messagedef & message )
              << std::endl;
 
     // Generate the decoder method
-    m_output << "void " << path << "::fromFudgeMessage (const fudge::message & source)" << std::endl
+    m_output << "void " << path << "::fromFudgeMessage (const ::fudge::message & source)" << std::endl
              << "{" << std::endl;
     ++m_depth;
     outputDecoderWrapper ( message );
@@ -148,7 +148,7 @@ void cppimplwriter::classFields ( const messagedef & message )
              << std::endl;
 
     // Generate the anonymous decoder method
-    m_output << "void " << path << "::fromAnonFudgeMessage (const fudge::message & source)" << std::endl
+    m_output << "void " << path << "::fromAnonFudgeMessage (const ::fudge::message & source)" << std::endl
              << "{" << std::endl;
     ++m_depth;
     outputParentDecoder ( message );
@@ -257,9 +257,9 @@ void cppimplwriter::outputMemberSetterBody ( const fielddef * field )
 void cppimplwriter::outputEncoderWrapper ( const messagedef & message )
 {
     const std::string indent ( generateIndent ( ) );
-    m_output << indent << "fudge::message target;" << std::endl
-             << indent << "target.addField (fudge::string (\"" << message.idString ( )
-                       << "\"), fudge::message::noname, 0);" << std::endl
+    m_output << indent << "::fudge::message target;" << std::endl
+             << indent << "target.addField (::fudge::string (\"" << message.idString ( )
+                       << "\"), ::fudge::message::noname, 0);" << std::endl
              << std::endl;
 
     for ( size_t index ( 0 ); index < message.parents ( ).size ( ); ++index )
@@ -303,7 +303,7 @@ void cppimplwriter::outputEncoderField ( const fielddef * field )
     {
         const std::string messagevar ( "submsg_" + getIdLeaf ( *field ) );
 
-        m_output << indent << "fudge::message " << messagevar << " (" << membername
+        m_output << indent << "::fudge::message " << messagevar << " (" << membername
                            << "->asFudgeMessage ( ));" << std::endl;
         outputEncoderFieldAdd ( "target", messagevar, *field );
         m_output << std::endl;
@@ -324,12 +324,12 @@ void cppimplwriter::outputEncoderFieldAdd ( const std::string & targetvar,
 {
     m_output << generateIndent ( ) << targetvar << ".addField (" << sourcevar << ", ";
 
-    m_output << "fudge::string (\"" << generateIdString ( field.id ( ) ) << "\")";
+    m_output << "::fudge::string (\"" << generateIdString ( field.id ( ) ) << "\")";
     m_output << ", ";
     if ( field.hasOrdinal ( ) )
         m_output << field.ordinal ( );
     else
-        m_output << "fudge::message::noordinal";
+        m_output << "::fudge::message::noordinal";
     m_output << ");" << std::endl;
 }
 
@@ -358,7 +358,7 @@ void cppimplwriter::outputCollectionEncoder ( const std::string & targetvar,
         // Create a target message for this submessage
         std::stringstream targetbuf;
         targetbuf << getIdLeaf ( field ) << index;
-        m_output << generateIndent ( ) << "fudge::message " << targetbuf.str ( ) << ";" << std::endl;
+        m_output << generateIndent ( ) << "::fudge::message " << targetbuf.str ( ) << ";" << std::endl;
 
         // Loop over elements in list, simple elements go in as fields, complex ones as messages
         m_output << generateIndent ( ) << "for (size_t index" << index << " (0); index" << index
@@ -381,7 +381,7 @@ void cppimplwriter::outputCollectionEncoder ( const std::string & targetvar,
             const std::string subvarname ( "submsg_" + getIdLeaf ( field ) ),
                               indent ( generateIndent ( ) );
 
-            m_output << indent << "fudge::message " << subvarname << " (" << namebuf.str ( )
+            m_output << indent << "::fudge::message " << subvarname << " (" << namebuf.str ( )
                                << "->asFudgeMessage ( ));" << std::endl
                      << indent << targetbuf.str ( ) << ".addField (" << subvarname << ");" << std::endl;
         }
@@ -424,12 +424,12 @@ void cppimplwriter::outputDecoderWrapper ( const messagedef & message )
 {
     const std::string indent ( generateIndent ( ) );
     m_output << indent << "static const fudge_i16 ordinal (0);" << std::endl
-             << indent << "static const fudge::string expected (\"" << message.idString ( ) << "\");" << std::endl
+             << indent << "static const ::fudge::string expected (\"" << message.idString ( ) << "\");" << std::endl
              << std::endl
-             << indent << "const fudge::field type (source.getField (ordinal));" << std::endl
+             << indent << "const ::fudge::field type (source.getField (ordinal));" << std::endl
              << indent << "if (type.type () != FUDGE_TYPE_STRING)" << std::endl
              << indent << s_indent << "throw std::runtime_error (\"Zero ordinal field not of type string\");" << std::endl
-             << indent << "const fudge::string typestr (type.getString ());" << std::endl
+             << indent << "const ::fudge::string typestr (type.getString ());" << std::endl
              << indent << "if (expected != typestr)" << std::endl
              << indent << s_indent << "throw std::runtime_error (\"Expected type string \\\"\" + expected.convertToStdString () +" << std::endl
              << indent << s_indent << "                          \"\\\", got \\\"\" + typestr.convertToStdString () + \"\\\"\");" << std::endl
@@ -453,8 +453,8 @@ void cppimplwriter::outputDecoderField ( const fielddef * field )
 {
     // Attempt to retrieve field from message by name
     const std::string fieldname ( generateIdString ( field->id ( ) ) + "_field" );
-    m_output << generateIndent ( ) << "fudge::field " << fieldname << ";" << std::endl
-             << generateIndent ( ) << "if (source.getField(" << fieldname << ", fudge::string (\""
+    m_output << generateIndent ( ) << "::fudge::field " << fieldname << ";" << std::endl
+             << generateIndent ( ) << "if (source.getField(" << fieldname << ", ::fudge::string (\""
                                    << generateIdString ( field->id ( ) ) << "\")))" << std::endl
              << generateIndent ( ) << "{" << std::endl;
     ++m_depth;
@@ -529,7 +529,7 @@ void cppimplwriter::outputCollectionDecoder ( const std::string & sourcevar,
         // Retrieve the submessage for this array
         std::stringstream messagebuf;
         messagebuf << getIdLeaf ( field ) << index;
-        m_output << generateIndent ( ) << "const fudge::message " << messagebuf.str ( ) << " ("
+        m_output << generateIndent ( ) << "const ::fudge::message " << messagebuf.str ( ) << " ("
                                        << sourcevar << ".getMessage ());" << std::endl;
 
         // Ensure the array has the correct number of elements
@@ -545,7 +545,7 @@ void cppimplwriter::outputCollectionDecoder ( const std::string & sourcevar,
         ++m_depth;
 
         const std::string fieldname ( messagebuf.str ( ) + "_field" );
-        m_output << generateIndent ( ) << "const fudge::field " << fieldname << " (" << messagebuf.str ( )
+        m_output << generateIndent ( ) << "const ::fudge::field " << fieldname << " (" << messagebuf.str ( )
                                        << ".getFieldAt (index" << index << "));" << std::endl;
 
         // Reference to target element
@@ -628,11 +628,11 @@ std::string cppimplwriter::generateDefaultValue ( const fielddef & field )
         case FUDGEPROTO_TYPE_LONG:      return "0";
         case FUDGEPROTO_TYPE_FLOAT:
         case FUDGEPROTO_TYPE_DOUBLE:    return "0.0";
-        case FUDGEPROTO_TYPE_STRING:    return "fudge::string ( )";
-        case FUDGEPROTO_TYPE_MESSAGE:   return "fudge::message ( )";
-        case FUDGEPROTO_TYPE_DATE:      return "fudge::date ( )";
-        case FUDGEPROTO_TYPE_TIME:      return "fudge::time ( )";
-        case FUDGEPROTO_TYPE_DATETIME:  return "fudge::datetime ( )";
+        case FUDGEPROTO_TYPE_STRING:    return "::fudge::string ( )";
+        case FUDGEPROTO_TYPE_MESSAGE:   return "::fudge::message ( )";
+        case FUDGEPROTO_TYPE_DATE:      return "::fudge::date ( )";
+        case FUDGEPROTO_TYPE_TIME:      return ":;fudge::time ( )";
+        case FUDGEPROTO_TYPE_DATETIME:  return "::fudge::datetime ( )";
         case FUDGEPROTO_TYPE_USER:
             if ( typeid ( type.def ( ) ) == typeid ( enumdef ) )
                 return "(" + generateTypeName ( type ) + ") 0";
@@ -666,7 +666,7 @@ std::string cppimplwriter::generateLiteralValue ( const literalvalue & value )
             break;
 
         case FUDGEPROTO_TYPE_STRING:
-            buffer << "fudge::string (\"" << escapeString ( value.getString ( ) ) << "\")";
+            buffer << "::fudge::string (\"" << escapeString ( value.getString ( ) ) << "\")";
             break;
 
         default:

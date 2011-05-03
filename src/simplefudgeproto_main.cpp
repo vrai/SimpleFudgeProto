@@ -116,7 +116,7 @@ int main ( int argc, char * argv [ ] )
         // Create the correct code writer factory for the chosen language
         std::auto_ptr<fudgeproto::codewriterfactory> factory ( createCodeWriterFactory ( language ) );
         if ( ! factory.get ( ) )
-            usage ( true, ( "Unrecogised language name \"" + language + "\"" ).c_str ( ) );
+            usage ( true, ( "Unrecognised language name \"" + language + "\"" ).c_str ( ) );
 
         // The language must exist, so it's safe to create the filename generator
         const std::pair<std::string, std::string> fileexts ( getFileExts ( language ) );

@@ -128,13 +128,13 @@ void cppheaderwriter::classFields ( const messagedef & message )
     const std::string & name ( getIdLeaf ( message ) );
     std::string indent ( generateIndent ( ) );
     m_output << indent << name << " ( );" << std::endl
-             << indent << name << " (const fudge::message & source);" << std::endl
+             << indent << name << " (const ::fudge::message & source);" << std::endl
              << indent << "virtual ~" << name << " ( );" << std::endl
              << std::endl;
 
     // Output encoder/decoder method
-    m_output << indent << "fudge::message asFudgeMessage ( ) const;" << std::endl
-             << indent << "void fromFudgeMessage (const fudge::message & source);" << std::endl
+    m_output << indent << "::fudge::message asFudgeMessage ( ) const;" << std::endl
+             << indent << "void fromFudgeMessage (const ::fudge::message & source);" << std::endl
              << std::endl;
 
     // Output field accessors
@@ -153,8 +153,8 @@ void cppheaderwriter::classFields ( const messagedef & message )
     ++m_depth;
 
     // The real encoding/decoding is done in here
-    m_output << indent << "void toFudgeMessage (fudge::message & message) const;" << std::endl
-             << indent << "void fromAnonFudgeMessage (const fudge::message & message);" << std::endl
+    m_output << indent << "void toFudgeMessage (::fudge::message & message) const;" << std::endl
+             << indent << "void fromAnonFudgeMessage (const ::fudge::message & message);" << std::endl
              << std::endl;
 
     // Output field members

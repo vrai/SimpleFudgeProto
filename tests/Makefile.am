@@ -18,7 +18,8 @@ TESTS = test_parser		\
 
 check_PROGRAMS = $(TESTS)
 
-noinst_HEADERS = simpletest.hpp
+noinst_HEADERS = encoderutils.hpp	\
+		 simpletest.hpp
 
 INCLUDES = -I$(top_srcdir)/src
 
@@ -63,4 +64,7 @@ clean-local:
 	$(RM) -f *.log
 	$(RM) -f *.dat
 	$(RM) -f built_*.?pp
+
+dist-hook:
+	$(RM) -f $(distdir)/built_*.?pp
 
