@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-TESTS = test_parser		\
+TESTS = test_identifiermutator	\
+	test_parser		\
 	test_flatmessage	\
 	test_nestedmessage
 
@@ -25,6 +26,10 @@ INCLUDES = -I$(top_srcdir)/src
 
 FRAMEWORK_SOURCE = simpletest.cpp
 EXTRA_DIST = test_files
+
+test_identifiermutator_SOURCES = test_identifiermutator.cpp	\
+				 $(FRAMEWORK_SOURCE)
+test_identifiermutator_LDADD   = $(top_builddir)/src/libsimplefudgeproto.a -lfudgecpp
 
 test_parser_SOURCES = test_parser.cpp		\
 		      $(FRAMEWORK_SOURCE)

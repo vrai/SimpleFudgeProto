@@ -18,3 +18,5 @@
     Currenly clashes are only detected within single messages. Clashing
     names and/or ordinals are not detected within inherited messages.
 
+- Add static method to generated types that checks an arbitrary fudge
+  message for whether it contains the correct payload.

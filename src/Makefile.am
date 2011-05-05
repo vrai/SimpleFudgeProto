@@ -41,7 +41,7 @@ noinst_HEADERS = ast.hpp		\
                  cppwriter.hpp 		\
                  cppwriterfactory.hpp 	\
                  filenamegenerator.hpp 	\
-                 libsimplefudgeproto.a 	\
+		 identifiermutator.hpp	\
                  memoryutil.hpp 	\
                  parser.hpp		\
 		 stage.hpp		\
@@ -64,6 +64,7 @@ libsimplefudgeproto_a_SOURCES = ast.cpp			\
 				cppimplwriter.cpp	\
 				cppwriterfactory.cpp	\
 				filenamegenerator.cpp	\
+				identifiermutator.cpp	\
 				memoryutil.cpp		\
 				parser.cpp		\
 				protolexer.ll		\

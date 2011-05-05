@@ -51,6 +51,9 @@ class identifier : public refcounted
 
         static identifier * createAndConsume ( char * source );
         static identifier * prependAndConsume ( identifier * id, char * source );
+        static identifier * createFromString ( const std::string & source,
+                                               const std::string & separator,
+                                               bool ignoreEmpty = true );
 
     private:
         identifier ( );

@@ -15,6 +15,7 @@
  */
 
 #include "ast.hpp"
+#include <cstring>
 #include <sstream>
 #include <typeinfo>
 
@@ -98,6 +99,43 @@ identifier * identifier::prependAndConsume ( identifier * id, char * source )
 
     id->prepend ( source );
     delete [] source;
+    return id;
+}
+
+identifier * identifier::createFromString ( const std::string & source,
+                                            const std::string & separator,
+                                            bool ignoreEmpty )
+{
+    size_t position ( 0 ), next;
+    std::string element;
+    identifier * id ( 0 );
+
+    while ( ( next = source.find ( separator, position ) ) != std::string::npos )
+    {
+        element = source.substr ( position, next - position );
+        if ( element.size ( ) > 0 || ! ignoreEmpty )
+        {
+            if ( id )
+                id->append ( element );
+            else
+                id = new identifier ( element );
+        }
+        position = next + separator.size ( );
+    }
+
+    if ( position < source.size ( ) )
+        element = source.substr ( position, next - position );
+    else
+        element = "";
+
+    if ( id )
+    {
+        if ( element.size ( ) > 0 || ! ignoreEmpty )
+            id->append ( element );
+    }
+    else
+        id = new identifier ( element );
+
     return id;
 }
 
@@ -461,7 +499,6 @@ fielddef * fielddef::createAndConsume ( char * name,
     return field;
 }
 
-#include <iostream>
 fudgeproto_modifier fielddef::cleanModifier ( int modifier )
 {
     if ( ! ( modifier & FUDGEPROTO_MODIFIER_REQUIRED ) )
