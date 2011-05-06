@@ -37,6 +37,8 @@ class astindex
 
         const definition * find ( const std::string & id ) const;
 
+        void replace ( const std::string & oldid, definition * def );
+
         inline size_t numEnums ( ) const { return m_enums.size ( ); }
         inline size_t numMessages ( ) const { return m_messages.size ( ); }
 

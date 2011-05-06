@@ -61,6 +61,25 @@ const definition * astindex::find ( const std::string & id ) const
     return result;
 }
 
+void astindex::replace ( const std::string & oldid, definition * def )
+{
+    definitionmap * map;
+    if (      typeid ( *def ) == typeid ( enumdef ) )    map = &m_enums;
+    else if ( typeid ( *def ) == typeid ( messagedef ) ) map = &m_messages;
+    else
+        throw std::runtime_error ( "Index replace only accepts enum and messages" );
+
+    definitionmapit it ( map->find ( oldid ) );
+    if ( it == map->end ( ) )
+        throw std::runtime_error ( "Index cannot replace key \"" + oldid + "\" with \"" +
+                                   def->idString ( ) + "\", not found in index" );
+
+    map->erase ( it );
+    if ( ! map->insert ( std::make_pair ( def->idString ( ), def ) ).second )
+        throw std::runtime_error ( "Index failed to insert replacement key \"" + def->idString ( ) +
+                                   "\", collision occurred" );
+}
+
 void astindex::decrementMap ( definitionmap & map )
 {
     for ( definitionmapit it ( map.begin ( ) ); it != map.end ( ); ++it )

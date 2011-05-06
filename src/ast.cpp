@@ -82,6 +82,19 @@ std::string identifier::asString ( const std::string & separator ) const
     return text.str ( );
 }
 
+bool identifier::equals ( const identifier & id ) const
+{
+    if ( size ( ) == id.size ( ) )
+    {
+        for ( size_t index ( 0 ); index < size ( ); ++index )
+            if ( m_elements [ index ] != id.at ( index ) )
+                return false;
+        return true;
+    }
+    else
+        return false;
+}
+
 identifier * identifier::createAndConsume ( char * source )
 {
     if ( ! source ) throw std::runtime_error ( "Cannot create identifier with NULL character array" );
@@ -517,17 +530,21 @@ fudgeproto_modifier fielddef::cleanModifier ( int modifier )
 messagedef::messagedef ( )
     : definition ( 0 )
     , m_extern ( false )
+    , m_originalId ( 0 )
 {
 }
 
 messagedef::messagedef ( identifier * id, bool isExtern )
     : definition ( id )
     , m_extern ( isExtern )
+    , m_originalId ( 0 )
 {
+    refcounted::inc ( m_originalId );
 }
 
 messagedef::~messagedef ( )
 {
+    refcounted::dec ( m_originalId );
     std::for_each ( m_messages.begin ( ), m_messages.end ( ), refcounted::dec );
     std::for_each ( m_enums.begin ( ),    m_enums.end ( ),    refcounted::dec );
     std::for_each ( m_fields.begin ( ),   m_fields.end ( ),   refcounted::dec );
@@ -568,6 +585,14 @@ void messagedef::replaceParent ( size_t index, const identifier * parent )
     const identifier * old ( m_parents [ index ] );
     refcounted::inc ( ( m_parents [ index ] = parent ) );
     refcounted::dec ( old );
+}
+
+void messagedef::saveOriginalId ( )
+{
+    if ( m_originalId )
+        throw std::logic_error ( "Cannot save original Id more than once for message " + idString ( ) );
+
+    m_originalId = id ( ).clone ( );
 }
 
 messagedef * messagedef::addContentAndConsume ( messagedef * message, definition * definition )

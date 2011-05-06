@@ -67,7 +67,7 @@ void IndexStage::dump ( fudgeproto::refptr<fudgeproto::namespacedef> root )
 ResolverStage::ResolverStage ( fudgeproto::astwalker * walker,
                                fudgeproto::astwalker & dumper,
                                const fudgeproto::astextrefs & extrefs )
-    : Stage ( walker, dumper, "TYPE RESOLVER STAGE" )
+    : Stage ( walker, dumper, "EXTERNAL TYPE RESOLVER STAGE" )
     , m_extrefs ( extrefs )
 {
 }

@@ -20,6 +20,8 @@
 #include "astflattener.hpp"
 #include "astindexer.hpp"
 #include "astresolver.hpp"
+#include "astextresolver.hpp"
+#include "astaliaser.hpp"
 #include <memory>
 
 using namespace fudgeproto;
@@ -28,10 +30,13 @@ DEFINE_TEST( Parsing )
     // Construct the post-parsing processes
     astindex index;
     astextrefs extrefs;
+    identifiermutator mutator;
     std::auto_ptr<astwalker> renamer ( new astrenamer );
     std::auto_ptr<astflattener> flattener ( new astflattener );
     std::auto_ptr<astindexer> indexer ( new astindexer ( index ) );
-    std::auto_ptr<astresolver> resolver ( new astresolver ( extrefs, index ) );
+    std::auto_ptr<astresolver> resolver ( new astresolver ( index ) );
+    std::auto_ptr<astaliaser> aliaser ( new astaliaser ( index, mutator ) );
+    std::auto_ptr<astextresolver> extresolver ( new astextresolver ( extrefs, index ) );
 
     // Test flat messages
     refptr<namespacedef> root;
@@ -42,12 +47,16 @@ DEFINE_TEST( Parsing )
     TEST_EQUALS_INT( index.numEnums ( ), 1 );
     TEST_EQUALS_INT( index.numMessages ( ), 3 );
     TEST_THROWS_NOTHING( resolver->walk ( root.get ( ) ) );
+    TEST_THROWS_NOTHING( aliaser->walk ( root.get ( ) ) );
+    TEST_THROWS_NOTHING( extresolver->walk ( root.get ( ) ) );
     TEST_EQUALS_INT( extrefs.allrefs ( ).size ( ), 3 );
 
     TEST_THROWS_NOTHING( renamer->reset ( ) );
     TEST_THROWS_NOTHING( flattener->reset ( ) );
     TEST_THROWS_NOTHING( indexer->reset ( ) );
     TEST_THROWS_NOTHING( resolver->reset ( ) );
+    TEST_THROWS_NOTHING( aliaser->reset ( ) );
+    TEST_THROWS_NOTHING( extresolver->reset ( ) );
 
     // Test nested messages
     TEST_THROWS_NOTHING( root = parser::parse ( "./test_files/nested.proto" ) );
@@ -57,12 +66,16 @@ DEFINE_TEST( Parsing )
     TEST_EQUALS_INT( index.numEnums ( ), 0 );
     TEST_EQUALS_INT( index.numMessages ( ), 4 );
     TEST_THROWS_NOTHING( resolver->walk ( root.get ( ) ) );
+    TEST_THROWS_NOTHING( aliaser->walk ( root.get ( ) ) );
+    TEST_THROWS_NOTHING( extresolver->walk ( root.get ( ) ) );
     TEST_EQUALS_INT( extrefs.allrefs ( ).size ( ), 3 );
 
     TEST_THROWS_NOTHING( renamer->reset ( ) );
     TEST_THROWS_NOTHING( flattener->reset ( ) );
     TEST_THROWS_NOTHING( indexer->reset ( ) );
     TEST_THROWS_NOTHING( resolver->reset ( ) );
+    TEST_THROWS_NOTHING( aliaser->reset ( ) );
+    TEST_THROWS_NOTHING( extresolver->reset ( ) );
 
     // Test identical, but non-clashing names
     TEST_THROWS_NOTHING( root = parser::parse ( "./test_files/field_notclash.proto" ) );
@@ -72,6 +85,8 @@ DEFINE_TEST( Parsing )
     TEST_EQUALS_INT( index.numEnums ( ), 0 );
     TEST_EQUALS_INT( index.numMessages ( ), 2 );
     TEST_THROWS_NOTHING( resolver->walk ( root.get ( ) ) );
+    TEST_THROWS_NOTHING( aliaser->walk ( root.get ( ) ) );
+    TEST_THROWS_NOTHING( extresolver->walk ( root.get ( ) ) );
     TEST_EQUALS_INT( extrefs.allrefs ( ).size ( ), 1 );
 END_TEST
 
@@ -79,10 +94,13 @@ DEFINE_TEST( ProcessingFailures )
     // Construct the post-parsing processes
     astindex index;
     astextrefs extrefs;
+    identifiermutator mutator;
     std::auto_ptr<astwalker> renamer ( new astrenamer );
     std::auto_ptr<astflattener> flattener ( new astflattener );
     std::auto_ptr<astindexer> indexer ( new astindexer ( index ) );
-    std::auto_ptr<astresolver> resolver ( new astresolver ( extrefs, index ) );
+    std::auto_ptr<astresolver> resolver ( new astresolver ( index ) );
+    std::auto_ptr<astaliaser> aliaser ( new astaliaser ( index, mutator ) );
+    std::auto_ptr<astextresolver> extresolver ( new astextresolver ( extrefs, index ) );
 
     // Zero ordinals are verboten
     refptr<namespacedef> root;

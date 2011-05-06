@@ -85,6 +85,23 @@ identifier * identifiermutator::mutatedClone ( const identifier & id ) const
         return id.clone ( );
 }
 
+identifier * identifiermutator::mutatedCloneStem ( const identifier & id ) const
+{
+    if ( id.size ( ) < 1 )
+        throw std::runtime_error ( "Identifier mutator cannot mutate the stem of an empty Id" );
+
+    const std::string leaf ( id [ id.size ( ) - 1 ] );
+
+    std::auto_ptr<identifier> localid ( id.clone ( ) );
+    localid->pop ( );
+    std::auto_ptr<identifier> newid ( mutatedClone ( *localid ) );
+
+    if ( newid->size ( ) > 0 && newid->at ( newid->size ( ) - 1 ).empty ( ) )
+        newid->pop ( );
+    newid->append ( leaf );
+    return newid.release ( );
+}
+
 std::pair<size_t, identifier *> identifiermutator::searchNodes ( const identifier & id ) const
 {
     node * current ( 0 );

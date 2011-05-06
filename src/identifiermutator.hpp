@@ -29,6 +29,7 @@ class identifiermutator
 
         size_t add ( const identifier & id, const identifier & replacement );
         identifier * mutatedClone ( const identifier & id ) const;
+        identifier * mutatedCloneStem ( const identifier & id ) const;
 
     private:
         struct node

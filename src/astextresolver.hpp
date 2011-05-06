@@ -14,31 +14,37 @@
  * limitations under the License.
  */
 
-#ifndef INC_FUDGEPROTO_ASTRESOLVER
-#define INC_FUDGEPROTO_ASTRESOLVER
+#ifndef INC_FUDGEPROTO_ASTEXTRESOLVER
+#define INC_FUDGEPROTO_ASTEXTRESOLVER
 
+#include "astextrefs.hpp"
 #include "astindex.hpp"
 #include "astwalker.hpp"
 
 namespace fudgeproto {
 
-class astresolver : public astwalker
+class astextresolver : public astwalker
 {
     public:
-        astresolver ( const astindex & index );
+        astextresolver ( astextrefs & extrefs,
+                         const astindex & index );
 
         void walk ( definition * node );
+        void reset ( );
 
     private:
+        astextrefs & m_extrefs;
         const astindex & m_index;
+        astextrefs::stringsetmap m_references;
 
         void walk ( enumdef & node );
         void walk ( fielddef & node );
         void walk ( messagedef & node );
         void walk ( namespacedef & node );
 
-        const definition * walkParent ( const identifier * id );
-        const definition * findType ( const identifier & type, const definition * scope );
+        void addExternalReference ( const definition & target, const definition & message );
+
+        bool isParentMessage ( const definition & type );
 };
 
 }

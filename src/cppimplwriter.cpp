@@ -258,7 +258,7 @@ void cppimplwriter::outputEncoderWrapper ( const messagedef & message )
 {
     const std::string indent ( generateIndent ( ) );
     m_output << indent << "::fudge::message target;" << std::endl
-             << indent << "target.addField (::fudge::string (\"" << message.idString ( )
+             << indent << "target.addField (::fudge::string (\"" << message.originalIdString ( )
                        << "\"), ::fudge::message::noname, 0);" << std::endl
              << std::endl;
 

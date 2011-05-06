@@ -20,24 +20,14 @@
 
 using namespace fudgeproto;
 
-astresolver::astresolver ( astextrefs & extrefs, const astindex & index )
-    : m_extrefs ( extrefs )
-    , m_index ( index )
+astresolver::astresolver ( const astindex & index )
+    : m_index ( index )
 {
 }
 
 void astresolver::walk ( definition * node )
 {
     astwalker::walk ( node );
-
-    if ( ! peekStack ( ) )
-        m_extrefs.load ( m_references );
-}
-
-void astresolver::reset ( )
-{
-    astwalker::reset ( );
-    m_references.clear ( );
 }
 
 void astresolver::walk ( enumdef & node )
@@ -65,7 +55,6 @@ void astresolver::walk ( fielddef & node )
                                    peekStack ( 1 )->idString ( ) + "\"" );
     node.type ( ).resetIdentifier ( &type->id ( ) );
     node.type ( ).setDefinition ( type );
-    addExternalReference ( *type, *peekStack ( 1 ) );
     refcounted::dec ( type );
 }
 
@@ -91,7 +80,6 @@ void astresolver::walk ( messagedef & node )
     for ( size_t index ( 0 ); index < parents.size ( ); ++index )
     {
         node.replaceParent ( index, &( parents [ index ]->id ( ) ) );
-        addExternalReference ( *parents [ index ], node );
         refcounted::dec ( parents [ index ] );
     }
 
@@ -140,36 +128,3 @@ const definition * astresolver::findType ( const identifier & type, const defini
     return result;
 }
 
-void astresolver::addExternalReference ( const definition & target, const definition & message )
-{
-    // Can't be dependent on an enum - drop the enum elements, leaving the parent message
-    identifier * id ( target.id ( ).clone ( ) );
-    if ( typeid ( target ) == typeid ( enumdef ) )
-        id->pop ( );
-
-    // Find the message type corresponding to the identifier
-    const definition * type ( m_index.find ( id->asString ( "." ) ) );
-    if ( ! type )
-        throw std::logic_error ( "Cannot add unknown external reference \"" + id->asString ( "." ) +
-                                 "\" to message \"" + message.idString ( ) + "\"" );
-    if ( typeid ( *type ) != typeid ( message ) )
-        throw std::logic_error ( "Cannot add non-message reference \"" + type->idString ( ) +
-                                 "\" to message \"" + message.idString ( ) + "\"" );
-
-    // Only add messages that are at the top-level (i.e. not within another message)
-    if ( ! isParentMessage ( *type ) )
-        m_references [ message.idString ( ) ].insert ( type->idString ( ) );
-
-    refcounted::dec ( type );
-    refcounted::dec ( id );
-}
-
-bool astresolver::isParentMessage ( const definition & type )
-{
-    identifier * parent ( type.id ( ).clone ( ) );
-    parent->pop ( );
-    const std::string parentid ( parent->asString ( "." ) );
-    refcounted::dec ( parent );
-
-    return  m_index.messageMap ( ).find ( parentid ) != m_index.messageMap ( ).end ( );
-}

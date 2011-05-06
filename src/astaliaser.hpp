@@ -14,31 +14,35 @@
  * limitations under the License.
  */
 
-#ifndef INC_FUDGEPROTO_ASTRESOLVER
-#define INC_FUDGEPROTO_ASTRESOLVER
+#ifndef INC_FUDGEPROTO_ASTALIASER
+#define INC_FUDGEPROTO_ASTALIASER
 
 #include "astindex.hpp"
 #include "astwalker.hpp"
+#include "identifiermutator.hpp"
 
 namespace fudgeproto {
 
-class astresolver : public astwalker
+class astaliaser : public astwalker
 {
     public:
-        astresolver ( const astindex & index );
+        astaliaser ( astindex & index,
+                     identifiermutator & mutator );
 
         void walk ( definition * node );
 
     private:
-        const astindex & m_index;
+        astindex & m_index;
+        identifiermutator & m_mutator;
+        std::deque<messagedef *> m_messages;
 
         void walk ( enumdef & node );
         void walk ( fielddef & node );
         void walk ( messagedef & node );
         void walk ( namespacedef & node );
 
-        const definition * walkParent ( const identifier * id );
-        const definition * findType ( const identifier & type, const definition * scope );
+        void rename ( definition * node );
+        void renameFields ( messagedef * node );
 };
 
 }

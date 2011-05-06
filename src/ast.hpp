@@ -49,6 +49,8 @@ class identifier : public refcounted
 
         std::string asString ( const std::string & separator ) const;
 
+        bool equals ( const identifier & id ) const;
+
         static identifier * createAndConsume ( char * source );
         static identifier * prependAndConsume ( identifier * id, char * source );
         static identifier * createFromString ( const std::string & source,
@@ -289,11 +291,16 @@ class messagedef : public definition
 
         void replaceParent ( size_t index, const identifier * parent );
 
+        inline std::string originalIdString ( ) const { return m_originalId ? m_originalId->asString ( "." ) : idString ( ); }
+
+        void saveOriginalId ( );
+
         static messagedef * addContentAndConsume ( messagedef * message, definition * definition );
         static messagedef * addParentsAndConsume ( messagedef * message, identifier_list * parents );
 
     private:
         bool m_extern;
+        identifier * m_originalId;
         std::vector<const identifier *> m_parents;
         std::list<enumdef *> m_enums;
         std::list<fielddef *> m_fields;

@@ -23,8 +23,10 @@ AM_YFLAGS = -d
 AM_LFLAGS =
 
 noinst_HEADERS = ast.hpp		\
+		 astaliaser.hpp		\
                  astdumper.hpp		\
                  astextrefs.hpp 	\
+		 astextresolver.hpp	\
                  astflattener.hpp 	\
                  astgenerator.hpp 	\
                  astindex.hpp 		\
@@ -48,8 +50,10 @@ noinst_HEADERS = ast.hpp		\
 		 template.hpp
 
 libsimplefudgeproto_a_SOURCES = ast.cpp			\
+				astaliaser.cpp		\
 				astdumper.cpp		\
 				astextrefs.cpp		\
+				astextresolver.cpp	\
 				astflattener.cpp	\
 				astgenerator.cpp	\
 				astindex.cpp		\

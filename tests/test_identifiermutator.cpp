@@ -25,16 +25,8 @@ namespace
     {
         if ( ! x.get ( ) || ! y.get ( ) )
             return x.get ( ) == y.get ( );
-
-        if ( x->size ( ) == y->size ( ) )
-        {
-            for ( size_t index ( 0 ); index < x->size ( ); ++index )
-                if ( x->at ( index ) != y->at ( index ) )
-                    return false;
-            return true;
-        }
         else
-            return false;
+            return x->equals ( *( y.get ( ) ) );
     }
 
     std::ostream & operator<< ( std::ostream & stream, const std::auto_ptr<identifier> & id )
@@ -90,6 +82,22 @@ DEFINE_TEST( IdentifierSearch )
     TEST_EQUALS( result, expected5 );
     TEST_THROWS_NOTHING( result.reset ( mutator.mutatedClone ( *( test6.get ( ) ) ) ) );
     TEST_EQUALS( result, expected6 );
+
+    // Test stem mutation
+    std::auto_ptr<identifier> teststem1 ( identifier::createFromString ( "first.second.third.fourth.fifth", "." ) ),
+                              teststem2 ( identifier::createFromString ( "first.second.third", "." ) ),
+                              teststem3 ( identifier::createFromString ( "second", "." ) ),
+                              teststem4 ( identifier::createFromString ( "second.third", "." ) ),
+                              expectedstem4 ( identifier::createFromString ( "third", "." ) );
+
+    TEST_THROWS_NOTHING( result.reset ( mutator.mutatedCloneStem ( *( teststem1.get ( ) ) ) ) );
+    TEST_EQUALS( result, expected1 );
+    TEST_THROWS_NOTHING( result.reset ( mutator.mutatedCloneStem ( *( teststem2.get ( ) ) ) ) );
+    TEST_EQUALS( result, teststem2 );
+    TEST_THROWS_NOTHING( result.reset ( mutator.mutatedCloneStem ( *( teststem3.get ( ) ) ) ) );
+    TEST_EQUALS( result, teststem3 );
+    TEST_THROWS_NOTHING( result.reset ( mutator.mutatedCloneStem ( *( teststem4.get ( ) ) ) ) );
+    TEST_EQUALS( result, expectedstem4 );
 END_TEST
 
 DEFINE_TEST_SUITE( IdentifierMutator )
