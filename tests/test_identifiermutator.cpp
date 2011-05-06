@@ -16,6 +16,7 @@
 
 #include "identifiermutator.hpp"
 #include "simpletest.hpp"
+#include <memory>
 
 using namespace fudgeproto;
 

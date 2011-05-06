@@ -15,6 +15,7 @@
  */
 
 #include "identifiermutator.hpp"
+#include <memory>
 #include <sstream>
 
 using namespace fudgeproto;
