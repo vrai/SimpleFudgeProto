@@ -1,3 +1,5 @@
+- Add proper unit test for namespace aliasing.
+
 - Allow default values for remaining primitive types
 
     Currently only int, bool, float and string are supported. The date/time

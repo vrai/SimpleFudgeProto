@@ -424,7 +424,7 @@ void cppimplwriter::outputDecoderWrapper ( const messagedef & message )
 {
     const std::string indent ( generateIndent ( ) );
     m_output << indent << "static const fudge_i16 ordinal (0);" << std::endl
-             << indent << "static const ::fudge::string expected (\"" << message.idString ( ) << "\");" << std::endl
+             << indent << "static const ::fudge::string expected (\"" << message.originalIdString ( ) << "\");" << std::endl
              << std::endl
              << indent << "const ::fudge::field type (source.getField (ordinal));" << std::endl
              << indent << "if (type.type () != FUDGE_TYPE_STRING)" << std::endl

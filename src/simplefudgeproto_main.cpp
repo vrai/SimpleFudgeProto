@@ -31,10 +31,10 @@
 #include <stdexcept>
 #include <getopt.h>
 
-#define PROGRAM_NAME "simplefudgeproto"
-
 namespace
 {
+    static const std::string programname ( "simplefudgeproto" );
+
     static const struct option longopts [] =
     {
         { "help",     no_argument,       NULL,   'h' },
@@ -47,9 +47,9 @@ namespace
 
     static void usage ( bool error, const char * errstr = 0 )
     {
-        if ( errstr ) std::cerr << PROGRAM_NAME << ": " << errstr << std::endl;
+        if ( errstr ) std::cerr << programname << ": " << errstr << std::endl;
         if ( error ) std::cout << std::endl;
-        std::cout << "Usage: " << PROGRAM_NAME << " [-hvV] [-t dir] [-l language file" << std::endl
+        std::cout << "Usage: " << programname << " [-hvV] [-t dir] [-a ns1:ns2] -l language file" << std::endl
                   << "  -h,--help          : print this help message" << std::endl
                   << "  -v,--version       : display version information then exit" << std::endl
                   << "  -V,--verbose       : generate debug output" << std::endl

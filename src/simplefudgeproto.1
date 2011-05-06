@@ -20,7 +20,7 @@ simplefudgeproto \- generates C++/FudgeMsg bindings from proto-like definition f
 .\"
 .SH "SYNOPSIS"
 .B simplefudgeproto
-[-hvV] [-t TARGETDIR] -l LANGUAGE PROTOFILE
+[-hvV] [-t TARGETDIR] [-a NS1:NS2] -l LANGUAGE PROTOFILE
 .\"
 .\" ===================================================================================
 .\"
@@ -70,6 +70,16 @@ produces C++ code\&.
 .RS 4
 Target directory for generated files\&. If absent, defaults to the current working
 directory.\&.
+.RE
+.PP
+\fB-a,--alias=\fR
+.RS 4
+Takes two namespaces (or namespace fragments) - separated by a single colon - and replaces
+occurances of the first namespace with the second. Note that this affects the generated
+code only, the wire format will still use the original namespaces. The first namespace will
+only be matched against the beginning of a potentially replaceable namespace\&.
+.sp
+This optional may be specified multiple times\&.
 .RE 4
 .\" ===================================================================================
 .\"
