@@ -58,6 +58,13 @@ void identifier::prepend ( const std::string & element )
     m_elements.push_front ( element );
 }
 
+void identifier::prepend ( const identifier & source )
+{
+    std::copy ( source.m_elements.rbegin ( ),
+                source.m_elements.rend ( ),
+                std::front_inserter ( m_elements ) );
+}
+
 void identifier::pop ( )
 {
     if ( m_elements.empty ( ) )

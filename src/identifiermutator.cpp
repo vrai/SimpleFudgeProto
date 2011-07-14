@@ -21,6 +21,7 @@
 using namespace fudgeproto;
 
 identifiermutator::identifiermutator ( )
+    : m_prefix ( 0 )
 {
 }
 
@@ -28,6 +29,7 @@ identifiermutator::~identifiermutator ( )
 {
     for ( std::map<std::string, node *>::iterator it ( m_nodes.begin ( ) ); it != m_nodes.end ( ); ++it )
         delete it->second;
+    delete m_prefix;
 }
 
 size_t identifiermutator::add ( const identifier & id, const identifier & replacement )
@@ -61,6 +63,16 @@ size_t identifiermutator::add ( const identifier & id, const identifier & replac
     }
     else
         throw std::logic_error ( "Somehow ended up at the end of identifiermutator::add without a node" );
+}
+
+void identifiermutator::add ( const identifier & replacement )
+{
+    if ( replacement.size ( ) < 1 || replacement.size ( ) == 1 && replacement [ 0 ].empty ( ) )
+        throw std::runtime_error ( "Identifier mutator cannot prefix an empty Id" );
+    if ( m_prefix )
+        throw std::runtime_error ( "Can specify one prefix at most" );
+
+    m_prefix = replacement.clone ( );
 }
 
 identifier * identifiermutator::mutatedClone ( const identifier & id ) const
@@ -100,6 +112,10 @@ identifier * identifiermutator::mutatedCloneStem ( const identifier & id ) const
     if ( newid->size ( ) > 0 && newid->at ( newid->size ( ) - 1 ).empty ( ) )
         newid->pop ( );
     newid->append ( leaf );
+
+    if ( m_prefix )
+        newid->prepend ( *m_prefix );
+
     return newid.release ( );
 }
 

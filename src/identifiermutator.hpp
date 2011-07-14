@@ -28,6 +28,7 @@ class identifiermutator
         ~identifiermutator ( );
 
         size_t add ( const identifier & id, const identifier & replacement );
+        void add ( const identifier & replacement );
         identifier * mutatedClone ( const identifier & id ) const;
         identifier * mutatedCloneStem ( const identifier & id ) const;
 
@@ -43,6 +44,7 @@ class identifiermutator
         };
 
         std::map<std::string, node *> m_nodes;
+        identifier * m_prefix;
 
         std::pair<size_t, identifier *> searchNodes ( const identifier & id ) const;
 };

@@ -64,9 +64,12 @@ void cppheaderwriter::includeStandard ( )
 
 void cppheaderwriter::startNamespace ( const identifier & ns )
 {
-    for ( size_t index ( 0 ); index < ns.size ( ); ++index )
-        m_output << ( index ? " " : "" ) << "namespace " << ns [ index ] << " {";
-    m_output << std::endl << std::endl;
+    if ( ns.size ( ) )
+    {
+        for ( size_t index ( 0 ); index < ns.size ( ); ++index )
+            m_output << ( index ? " " : "" ) << "namespace " << ns [ index ] << " {";
+        m_output << std::endl << std::endl;
+    }
 }
 
 void cppheaderwriter::endNamespace ( const identifier & ns )

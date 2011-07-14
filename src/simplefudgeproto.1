@@ -12,7 +12,7 @@
 .\" See the License for the specific language governing permissions and
 .\" limitations under the License.
 .\"
-.TH "simplefudgeproto" "1" "2011-03-05" "simplefudgeproto 0.1.0" "SimpleFudgeProto code generator"
+.TH "simplefudgeproto" "1" "2011-07-14" "simplefudgeproto 0.2.0" "SimpleFudgeProto code generator"
 .SH "NAME"
 simplefudgeproto \- generates C++/FudgeMsg bindings from proto-like definition files
 .\"
@@ -20,7 +20,7 @@ simplefudgeproto \- generates C++/FudgeMsg bindings from proto-like definition f
 .\"
 .SH "SYNOPSIS"
 .B simplefudgeproto
-[-hvV] [-t TARGETDIR] [-a NS1:NS2] -l LANGUAGE PROTOFILE
+[-hvV] [-t TARGETDIR] [-a NS1:NS2] [-p NS] -l LANGUAGE PROTOFILE
 .\"
 .\" ===================================================================================
 .\"
@@ -79,7 +79,14 @@ occurances of the first namespace with the second. Note that this affects the ge
 code only, the wire format will still use the original namespaces. The first namespace will
 only be matched against the beginning of a potentially replaceable namespace\&.
 .sp
-This optional may be specified multiple times\&.
+This option may be specified multiple times\&.
+.RE
+.PP
+\fB-p,--prefix=\fR
+.RS 4
+Takes a namespace and prepends it to all top-level namespaces. The prefix is applied after
+any aliases. Like aliases only the generated code is changed, the wire format will use the
+original namespaces.
 .RE 4
 .\" ===================================================================================
 .\"

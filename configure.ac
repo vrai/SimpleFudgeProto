@@ -15,7 +15,7 @@
 ### Need modern autoconf, only 2.60+ has the AC_TYPE_INT*_T macros
 AC_PREREQ([2.60])
 
-AC_INIT([SimpleFudgeProto], [0.1.0], [vrai.stacey@gmail.com])
+AC_INIT([SimpleFudgeProto], [0.2.0], [vrai.stacey@gmail.com])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADER(src/config.h)

@@ -44,6 +44,7 @@ class identifier : public refcounted
         void append ( const std::string & element );
         void extend ( const identifier & source );
         void prepend ( const std::string & element );
+        void prepend ( const identifier & source );
         void pop ( );
         void clear ( );
 

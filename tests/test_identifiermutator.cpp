@@ -99,6 +99,20 @@ DEFINE_TEST( IdentifierSearch )
     TEST_EQUALS( result, teststem3 );
     TEST_THROWS_NOTHING( result.reset ( mutator.mutatedCloneStem ( *( teststem4.get ( ) ) ) ) );
     TEST_EQUALS( result, expectedstem4 );
+
+    // Test prefix mutation
+    std::auto_ptr<identifier> testpstem1  ( identifier::createFromString ( "first", "." ) ),
+                              testpstem2  ( identifier::createFromString ( "first.second.third", "." ) ),
+                              testprefix1 ( identifier::createFromString ( "minus.zero", "." ) ),
+                              pexpected1  ( identifier::createFromString ( "minus.zero.first", "." ) ),
+                              pexpected2  ( identifier::createFromString ( "minus.zero.first.second.third", "." ) );
+
+    mutator.add ( *testprefix1.get ( ) );
+
+    TEST_THROWS_NOTHING( result.reset ( mutator.mutatedCloneStem ( *( testpstem1.get ( ) ) ) ) );
+    TEST_EQUALS( result, pexpected1 );
+    TEST_THROWS_NOTHING( result.reset ( mutator.mutatedCloneStem ( *( testpstem2.get ( ) ) ) ) );
+    TEST_EQUALS( result, pexpected2 );
 END_TEST
 
 DEFINE_TEST_SUITE( IdentifierMutator )

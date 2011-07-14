@@ -49,7 +49,7 @@ namespace
     {
         if ( errstr ) std::cerr << programname << ": " << errstr << std::endl;
         if ( error ) std::cout << std::endl;
-        std::cout << "Usage: " << programname << " [-hvV] [-t dir] [-a ns1:ns2] -l language file" << std::endl
+        std::cout << "Usage: " << programname << " [-hvV] [-t dir] [-a ns1:ns2] [-p ns] -l language file" << std::endl
                   << "  -h,--help          : print this help message" << std::endl
                   << "  -v,--version       : display version information then exit" << std::endl
                   << "  -V,--verbose       : generate debug output" << std::endl
@@ -58,7 +58,9 @@ namespace
                   << "                       CWD if not specified" << std::endl
                   << "  -a,--alias=NS1:NS2 : replaces occurances of the first namespace" << std::endl
                   << "                       with the second, in the generated code only;" << std::endl
-                  << "                       the wire encoding is not effected." << std::endl;
+                  << "                       the wire encoding is not affected." << std::endl
+                  << "  -p,--prefix=NS     : prefixes top-level namespace with the one " << std::endl
+                  << "                       provided; the wire encoding is not affected." << std::endl;
         exit ( error ? 1 : 0 );
     }
 
@@ -105,37 +107,50 @@ int main ( int argc, char * argv [ ] )
 
     std::string ns1, ns2;
     fudgeproto::refptr<fudgeproto::identifier> id1, id2;
-    char option;
-    while ( ( option = getopt_long ( argc, argv, "hvVl:t:a:", longopts, 0 ) ) >= 0 )
-        switch ( option )
-        {
-            case 'v':   version ( );
-            default:    usage ( true );
-            case 'h':   usage ( false );
 
-            case 'V':
-                verbose = true;
-                break;
+    try
+    {
+        char option;
+        while ( ( option = getopt_long ( argc, argv, "hvVl:t:a:p:", longopts, 0 ) ) >= 0 )
+            switch ( option )
+            {
+                case 'v':   version ( );
+                default:    usage ( true );
+                case 'h':   usage ( false );
 
-            case 'l':
-                if ( ! language.empty ( ) )
-                    usage ( true, "must specify output language once and only once" );
-                language = optarg;
-                break;
+                case 'V':
+                    verbose = true;
+                    break;
 
-            case 't':
-                target = optarg;
-                break;
+                case 'l':
+                    if ( ! language.empty ( ) )
+                        usage ( true, "must specify output language once and only once" );
+                    language = optarg;
+                    break;
 
-            case 'a':
-                if ( ! splitAliasString ( ns1, ns2, optarg ) )
-                    usage ( true, "alias must be of the format NS1:NS2" );
-                if ( mutator.add ( *( id1 = fudgeproto::identifier::createFromString ( ns1, "." ) ),
-                                   *( id2 = fudgeproto::identifier::createFromString ( ns2, "." ) ) ) != std::string::npos )
-                    usage ( true, ( "alias \"" + ns1 + "\" clashes with existing alias" ).c_str ( ) );
-                break;
-        }
-    argv += optind;
+                case 't':
+                    target = optarg;
+                    break;
+
+                case 'a':
+                    if ( ! splitAliasString ( ns1, ns2, optarg ) )
+                        usage ( true, "alias must be of the format NS1:NS2" );
+                    if ( mutator.add ( *( id1 = fudgeproto::identifier::createFromString ( ns1, "." ) ),
+                                       *( id2 = fudgeproto::identifier::createFromString ( ns2, "." ) ) ) != std::string::npos )
+                        usage ( true, ( "alias \"" + ns1 + "\" clashes with existing alias" ).c_str ( ) );
+                    break;
+
+                case 'p':
+                    mutator.add ( *( id1 = fudgeproto::identifier::createFromString ( optarg, "." ) ) );
+                    break;
+            }
+        argv += optind;
+    }
+    catch ( const std::exception & exception )
+    {
+        usage ( true, exception.what ( ) );
+    }
+
     if ( language.empty ( ) )
         usage ( true, "must specify the output language" );
     if ( ( argc -= optind ) != 1 )

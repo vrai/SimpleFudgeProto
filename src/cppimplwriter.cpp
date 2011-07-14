@@ -60,8 +60,9 @@ void cppimplwriter::includeStandard ( )
 
 void cppimplwriter::startNamespace ( const identifier & ns )
 {
-    m_output << "using namespace " << generateIdString ( ns ) << ";" << std::endl
-             << std::endl;
+    if ( ns.size ( ) )
+        m_output << "using namespace " << generateIdString ( ns ) << ";" << std::endl
+                 << std::endl;
 }
 
 void cppimplwriter::endNamespace ( const identifier & )
