@@ -76,5 +76,6 @@ END_TEST
 DEFINE_TEST_SUITE( SafeMessage )
     REGISTER_TEST( SafeWorking )
     REGISTER_TEST( SafeFailed )
+    REGISTER_TEST( UnsafeWorking )
 END_TEST_SUITE
 
