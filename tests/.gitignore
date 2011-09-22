@@ -8,3 +8,4 @@ test_flatmessage
 test_identifiermutator
 test_parser
 test_nestedmessage
+test_safemessage

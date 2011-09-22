@@ -25,7 +25,7 @@ namespace fudgeproto {
 class codewriter
 {
     public:
-        codewriter ( std::ostream & output );
+        codewriter ( std::ostream & output, bool unsafe );
         virtual ~codewriter ( );
 
         virtual void fileHeader ( const messagedef & ref,
@@ -44,6 +44,7 @@ class codewriter
 
     protected:
         std::ostream & m_output;
+        bool m_unsafe;
 };
 
 }

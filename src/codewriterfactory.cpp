@@ -20,7 +20,17 @@
 
 using namespace fudgeproto;
 
+codewriterfactory::codewriterfactory ( )
+    : m_unsafe ( false )
+{
+}
+
 codewriterfactory::~codewriterfactory ( )
 {
+}
+
+void codewriterfactory::setUnsafe ( bool unsafe )
+{
+    m_unsafe = unsafe;
 }
 

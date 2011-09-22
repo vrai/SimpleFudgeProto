@@ -24,7 +24,7 @@ namespace fudgeproto {
 class cppheaderwriter : public cppwriter
 {
     public:
-        cppheaderwriter ( std::ostream & output );
+        cppheaderwriter ( std::ostream & output, bool unsafe );
 
         void fileHeader ( const messagedef & ref,
                           const filenamegenerator & filenamegen );

@@ -27,11 +27,11 @@ bool cppwriterfactory::hasHeaderFile ( ) const
 
 codewriter * cppwriterfactory::headerWriter ( std::ostream & output ) const
 {
-    return new cppheaderwriter ( output );
+    return new cppheaderwriter ( output, m_unsafe );
 }
 
 codewriter * cppwriterfactory::implWriter ( std::ostream & output ) const
 {
-    return new cppimplwriter ( output );
+    return new cppimplwriter ( output, m_unsafe );
 }
 

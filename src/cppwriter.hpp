@@ -24,7 +24,7 @@ namespace fudgeproto {
 class cppwriter : public codewriter
 {
     public:
-        cppwriter ( std::ostream & output );
+        cppwriter ( std::ostream & output, bool unsafe );
 
         static const std::string s_indent;
 

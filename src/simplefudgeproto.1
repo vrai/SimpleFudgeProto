@@ -12,7 +12,7 @@
 .\" See the License for the specific language governing permissions and
 .\" limitations under the License.
 .\"
-.TH "simplefudgeproto" "1" "2011-07-14" "simplefudgeproto 0.2.0" "SimpleFudgeProto code generator"
+.TH "simplefudgeproto" "1" "2011-07-14" "simplefudgeproto 0.3.0" "SimpleFudgeProto code generator"
 .SH "NAME"
 simplefudgeproto \- generates C++/FudgeMsg bindings from proto-like definition files
 .\"
@@ -20,7 +20,7 @@ simplefudgeproto \- generates C++/FudgeMsg bindings from proto-like definition f
 .\"
 .SH "SYNOPSIS"
 .B simplefudgeproto
-[-hvV] [-t TARGETDIR] [-a NS1:NS2] [-p NS] -l LANGUAGE PROTOFILE
+[-hvVu] [-t TARGETDIR] [-a NS1:NS2] [-p NS] -l LANGUAGE PROTOFILE
 .\"
 .\" ===================================================================================
 .\"
@@ -87,6 +87,13 @@ This option may be specified multiple times\&.
 Takes a namespace and prepends it to all top-level namespaces. The prefix is applied after
 any aliases. Like aliases only the generated code is changed, the wire format will use the
 original namespaces.
+.RE
+.PP
+\fB-u,--unsafe\fR
+.RS 4
+By default the generated code will check the class type field (a string field with ordinal
+zero) when decoding a Fudge message\&. If this option is set the check will be omitted from
+all generated classes\&. The field will still be included in any encoded files however\&.
 .RE 4
 .\" ===================================================================================
 .\"

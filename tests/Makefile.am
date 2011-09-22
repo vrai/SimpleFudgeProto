@@ -15,7 +15,8 @@
 TESTS = test_identifiermutator	\
 	test_parser		\
 	test_flatmessage	\
-	test_nestedmessage
+	test_nestedmessage	\
+	test_safemessage
 
 check_PROGRAMS = $(TESTS)
 
@@ -51,6 +52,14 @@ test_nestedmessage_SOURCES = built_combined_flatmessage.cpp     \
 			     $(FRAMEWORK_SOURCE)
 test_nestedmessage_LDADD = $(top_builddir)/src/libsimplefudgeproto.a -lfudgecpp
 
+test_safemessage_SOURCES = built_safe_safemessageone.cpp	\
+			   built_safe_safemessagetwo.cpp	\
+			   built_unsafe_safemessageone.cpp	\
+			   built_unsafe_safemessagetwo.cpp	\
+			   test_safemessage.cpp			\
+			   $(FRAMEWORK_SOURCE)
+test_safemessage_LDADD = $(top_builddir)/src/libsimplefudgeproto.a -lfudgecpp
+
 # Build rules for generated code
 PROTO_GENERATOR = $(top_srcdir)/src/simplefudgeproto -l cpp
 
@@ -64,6 +73,14 @@ built_nestedmessageone.cpp:
 	$(PROTO_GENERATOR) ./test_files/nested.proto
 built_complex_nestedmessagetwo.cpp:
 	$(PROTO_GENERATOR) ./test_files/nested.proto
+built_safe_safemessageone.cpp:
+	$(PROTO_GENERATOR) ./test_files/safe.proto
+built_safe_safemessagetwo.cpp:
+	$(PROTO_GENERATOR) ./test_files/safe.proto
+built_unsafe_safemessageone.cpp:
+	$(PROTO_GENERATOR) -u -a built.safe:built.unsafe ./test_files/safe.proto
+built_unsafe_safemessagetwo.cpp:
+	$(PROTO_GENERATOR) -u -a built.safe:built.unsafe ./test_files/safe.proto
 
 clean-local:
 	$(RM) -f *.log

@@ -43,13 +43,14 @@ namespace
         { "language", required_argument, NULL,   'l' },
         { "target",   optional_argument, NULL,   't' },
         { "alias",    optional_argument, NULL,   'a' },
+        { "unsafe",   no_argument,       NULL,   'u' }
     };
 
     static void usage ( bool error, const char * errstr = 0 )
     {
         if ( errstr ) std::cerr << programname << ": " << errstr << std::endl;
         if ( error ) std::cout << std::endl;
-        std::cout << "Usage: " << programname << " [-hvV] [-t dir] [-a ns1:ns2] [-p ns] -l language file" << std::endl
+        std::cout << "Usage: " << programname << " [-hvVu] [-t dir] [-a ns1:ns2] [-p ns] -l language file" << std::endl
                   << "  -h,--help          : print this help message" << std::endl
                   << "  -v,--version       : display version information then exit" << std::endl
                   << "  -V,--verbose       : generate debug output" << std::endl
@@ -60,7 +61,10 @@ namespace
                   << "                       with the second, in the generated code only;" << std::endl
                   << "                       the wire encoding is not affected." << std::endl
                   << "  -p,--prefix=NS     : prefixes top-level namespace with the one " << std::endl
-                  << "                       provided; the wire encoding is not affected." << std::endl;
+                  << "                       provided; the wire encoding is not affected." << std::endl
+                  << "  -u,--unsafe        : disable the type field check when decoding" << std::endl
+                  << "                       messages; the field is still included when" << std::endl
+                  << "                       encoding message." << std::endl;
         exit ( error ? 1 : 0 );
     }
 
@@ -103,7 +107,8 @@ int main ( int argc, char * argv [ ] )
     fudgeproto::identifiermutator mutator;
     std::string language,
                 target ( "." );
-    bool verbose ( false );
+    bool verbose ( false ),
+         unsafe ( false );
 
     std::string ns1, ns2;
     fudgeproto::refptr<fudgeproto::identifier> id1, id2;
@@ -111,7 +116,7 @@ int main ( int argc, char * argv [ ] )
     try
     {
         char option;
-        while ( ( option = getopt_long ( argc, argv, "hvVl:t:a:p:", longopts, 0 ) ) >= 0 )
+        while ( ( option = getopt_long ( argc, argv, "hvVul:t:a:p:", longopts, 0 ) ) >= 0 )
             switch ( option )
             {
                 case 'v':   version ( );
@@ -143,6 +148,10 @@ int main ( int argc, char * argv [ ] )
                 case 'p':
                     mutator.add ( *( id1 = fudgeproto::identifier::createFromString ( optarg, "." ) ) );
                     break;
+
+                case 'u':
+                    unsafe = true;
+                    break;
             }
         argv += optind;
     }
@@ -162,6 +171,9 @@ int main ( int argc, char * argv [ ] )
         std::auto_ptr<fudgeproto::codewriterfactory> factory ( createCodeWriterFactory ( language ) );
         if ( ! factory.get ( ) )
             usage ( true, ( "Unrecognised language name \"" + language + "\"" ).c_str ( ) );
+
+        // Configure the factory
+        factory->setUnsafe ( unsafe );
 
         // The language must exist, so it's safe to create the filename generator
         const std::pair<std::string, std::string> fileexts ( getFileExts ( language ) );

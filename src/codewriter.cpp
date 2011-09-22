@@ -18,8 +18,9 @@
 
 using namespace fudgeproto;
 
-codewriter::codewriter ( std::ostream & output )
+codewriter::codewriter ( std::ostream & output, bool unsafe )
     : m_output ( output )
+    , m_unsafe ( unsafe )
 {
 }
 

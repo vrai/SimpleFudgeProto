@@ -19,8 +19,8 @@
 
 using namespace fudgeproto;
 
-cppimplwriter::cppimplwriter ( std::ostream & output )
-    : cppwriter ( output )
+cppimplwriter::cppimplwriter ( std::ostream & output, bool unsafe )
+    : cppwriter ( output, unsafe )
 {
 }
 
@@ -424,18 +424,23 @@ void cppimplwriter::outputCollectionRowValidation ( const fielddef & field,
 void cppimplwriter::outputDecoderWrapper ( const messagedef & message )
 {
     const std::string indent ( generateIndent ( ) );
-    m_output << indent << "static const fudge_i16 ordinal (0);" << std::endl
-             << indent << "static const ::fudge::string expected (\"" << message.originalIdString ( ) << "\");" << std::endl
-             << std::endl
-             << indent << "const ::fudge::field type (source.getField (ordinal));" << std::endl
-             << indent << "if (type.type () != FUDGE_TYPE_STRING)" << std::endl
-             << indent << s_indent << "throw std::runtime_error (\"Zero ordinal field not of type string\");" << std::endl
-             << indent << "const ::fudge::string typestr (type.getString ());" << std::endl
-             << indent << "if (expected != typestr)" << std::endl
-             << indent << s_indent << "throw std::runtime_error (\"Expected type string \\\"\" + expected.convertToStdString () +" << std::endl
-             << indent << s_indent << "                          \"\\\", got \\\"\" + typestr.convertToStdString () + \"\\\"\");" << std::endl
-             << std::endl
-             << indent << "fromAnonFudgeMessage (source);" << std::endl;
+
+    if ( m_unsafe )
+        m_output << indent << "// Unsafe mode, assume that message is for: " <<  message.originalIdString ( ) << std::endl;
+    else
+        m_output << indent << "static const fudge_i16 ordinal (0);" << std::endl
+                 << indent << "static const ::fudge::string expected (\"" << message.originalIdString ( ) << "\");" << std::endl
+                 << std::endl
+                 << indent << "const ::fudge::field type (source.getField (ordinal));" << std::endl
+                 << indent << "if (type.type () != FUDGE_TYPE_STRING)" << std::endl
+                 << indent << s_indent << "throw std::runtime_error (\"Zero ordinal field not of type string\");" << std::endl
+                 << indent << "const ::fudge::string typestr (type.getString ());" << std::endl
+                 << indent << "if (expected != typestr)" << std::endl
+                 << indent << s_indent << "throw std::runtime_error (\"Expected type string \\\"\" + expected.convertToStdString () +" << std::endl
+                 << indent << s_indent << "                          \"\\\", got \\\"\" + typestr.convertToStdString () + \"\\\"\");" << std::endl
+                 << std::endl;
+
+    m_output << indent << "fromAnonFudgeMessage (source);" << std::endl;
 }
 
 void cppimplwriter::outputParentDecoder ( const messagedef & message )

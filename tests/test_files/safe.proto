@@ -14,32 +14,18 @@
  * limitations under the License.
  */
 
-#ifndef INC_FUDGEPROTO_CODEWRITERFACTORY
-#define INC_FUDGEPROTO_CODEWRITERFACTORY
-
-#include "codewriter.hpp"
-#include <ostream>
-
-namespace fudgeproto {
-
-class codewriterfactory
+// Simple nested structure used for safe/unsafe comparisons
+namespace built.safe
 {
-    public:
-        virtual ~codewriterfactory ( );
-
-        virtual bool hasHeaderFile ( ) const = 0;
-        virtual codewriter * headerWriter ( std::ostream & output ) const = 0;
-        virtual codewriter * implWriter ( std::ostream & output ) const = 0;
-
-        void setUnsafe ( bool unsafe );
-
-    protected:
-        codewriterfactory ( );
-
-        bool m_unsafe;
-};
-
+    message SafeMessageOne
+    {
+        SafeMessageTwo nested;
+        required int32 integer;
+    }
+    
+    message SafeMessageTwo
+    {
+        required float floating;
+    }
 }
-
-#endif
 

@@ -21,8 +21,8 @@
 
 using namespace fudgeproto;
 
-cppheaderwriter::cppheaderwriter ( std::ostream & output )
-    : cppwriter ( output )
+cppheaderwriter::cppheaderwriter ( std::ostream & output, bool unsafe )
+    : cppwriter ( output, unsafe )
 {
 }
 

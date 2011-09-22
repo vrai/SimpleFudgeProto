@@ -25,7 +25,7 @@ namespace fudgeproto {
 class cppimplwriter : public cppwriter
 {
     public:
-        cppimplwriter ( std::ostream & output );
+        cppimplwriter ( std::ostream & output, bool unsafe );
         ~cppimplwriter ( );
 
         void fileHeader ( const messagedef & ref,
