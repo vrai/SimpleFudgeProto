@@ -22,7 +22,7 @@ assert ( sys.version_info [ : 2 ] >= ( 2, 4 ) )
 
 from xml.dom.minidom import parse as parseXmlFile
 from optparse import OptionParser
-import string, textwrap
+import os.path, string, textwrap, time
 
 # ==========================================================================
 # Utility functions
@@ -219,6 +219,11 @@ class XmlParser:
                                'quote'     : _partial ( self._parseStyle, StyleBlock.QUOTED ),
                                'ref'       : self._parseRef }
 
+        self.__headerParser = { None   : lambda node: str ( node.data ),
+                                'meta' : lambda node: '%s%s%s' % ( TagExpander.marker,
+                                                                   str ( node.getAttribute ( 'name' ) ).upper ( ),
+                                                                   TagExpander.marker ) }
+
     def parse ( self, stream ):
         document = parseXmlFile ( stream )
         try:
@@ -258,7 +263,17 @@ class XmlParser:
     def _buildHeaderText ( self, nodes ):
         total = [ ]
         for node in nodes:
-            lines = textwrap.dedent ( ''.join ( str ( child.data ) for child in node.childNodes if _nn ( child ) == None ) ).split ( '\n' )
+            # Parse the text and other (e.g. meta) tags within the header to get a list
+            # of lines with an common indent removed. Unrecognised tags are ignored.
+            pairs = [ ( child, self.__headerParser.get ( _nn ( child ) ) )
+                      for child in node.childNodes ]
+            lines = textwrap.dedent ( ''.join ( handler ( child )
+                                                for child, handler in pairs if handler )
+                                    ).split ( '\n' )
+
+            for unknown in [ child for child, handler in pairs if not handler ]:
+                sys.stderr.write ( 'UNRECOGNISED HEADER TAG "%s"\n' % _nn ( unknown ) )
+
             if not len ( lines ): continue
 
             # Remove the leading and/or trailing line if they're only whitespace
@@ -346,6 +361,9 @@ class XmlParser:
         if defs:
             return DefListBlock ( defs )
 
+    def _parseMeta ( self, node ):
+        return MetaBlock ( str ( node.getAttribute ( 'name' ) ) )
+
     def _parseOptions ( self, node ):
         options = [ ]
         for child in node.childNodes:
@@ -370,6 +388,35 @@ class XmlParser:
 
 
 # ==========================================================================
+# Tag expander class - replaces tag inserted in to text using <meta> tags
+
+class TagExpander:
+    marker = '$$'
+
+    def __init__ ( self ):
+        self.__tags = { 'SCRIPTNAME' : lambda: os.path.basename ( sys.argv [ 0 ] ),
+                        'TIMESTAMP'  : lambda: time.strftime ( '%Y/%b/%d %H:%M:%SZ', time.gmtime ( ) ) }
+
+    def __call__ ( self, text ):
+        elements = text.split ( self.marker )
+        if not len ( elements ) % 2:
+            raise Exception, 'CANNOT EXPAND TEXT, ODD NUMBER OF EXPANSION MARKERS "%s"' % self.marker
+        return ''.join ( self.__replace ( tail = elements ) )
+
+    def __replace ( self, head = [ ], tag = '', tail = [ ] ):
+        if tag:
+            generator = self.__tags.get ( tag )
+            if not generator:
+                raise KeyError, 'NO GENERATOR FOR TAG "%s"' % tag
+            tag = generator ( )
+
+        if len ( tail ) > 2:
+            return self.__replace ( head + [ tag, tail [ 0 ] ], tail [ 1 ], tail [ 2 : ] )
+        else:
+            return head + [ tag ] + tail
+
+
+# ==========================================================================
 # Formatter classes - takes a ManPage instance and outputs it in the given
 # format.
 
@@ -385,6 +432,8 @@ class NroffFormatter:
             return self.__class__ ( self.stream, self.manpage )
 
     def __init__ ( self ):
+        self.__tagexpander = TagExpander ( )
+
         self.__blockFormatter = { BulletListBlock  : self._formatBulletListBlock,
                                   BulletPointBlock : self._formatBulletPointBlock,
                                   DefBlock         : self._formatDefBlock,
@@ -414,7 +463,7 @@ class NroffFormatter:
     def _formatPageHeader ( self, context ):
         if context.manpage.header ( ):
             context.stream.write ( ''.join ( '.\\" %s\n' % line for line in
-                                             context.manpage.header ( ).split ( '\n' ) ) )
+                                             self.__tagexpander ( context.manpage.header ( ) ).split ( '\n' ) ) )
             context.stream.write ( '.\\"\n' )
 
     def _formatPageTitle ( self, context ):

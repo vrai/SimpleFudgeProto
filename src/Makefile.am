@@ -90,6 +90,6 @@ dist-hook:
 	    $(RM) -f $(distdir)/$$file;	  \
 	done
 
-simplefudgeproto.1:
+simplefudgeproto.1: simplefudgeproto.xml
 	$(top_srcdir)/scripts/manbuilder.py -i simplefudgeproto.xml -o simplefudgeproto.1 -f nroff
 
