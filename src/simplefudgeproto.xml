@@ -1,0 +1,477 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<manpage title="simplefudgeproto"
+         section="1"
+         extra1="2011-09-27"
+         extra2="simplefudgeproto 0.3.0"
+         extra3="SimpleFudgeProto code generator">
+
+    <header>
+        Copyright (C) 2011 - 2011, Vrai Stacey.
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+    </header>
+
+    <section title="NAME">
+        simplefudgeproto - generates C++/FudgeMsg bindings from proto-like definition
+        files
+    </section>
+
+    <section title="SYNOPSIS">
+        <bold>simplefudgeproto</bold> [-hvVu] [-t TARGETDIR] [-a NS1:NS2] [-p NS]
+                                      -l LANGUAGE PROTOFILE
+    </section>
+
+    <section title="DESCRIPTION">
+        <paragraph>
+            <italic>SimpleFudgeProto</italic> is a generator for C++/FudgeMsg bindings.
+            A structure (or structures) specified in a proto-like format is used to
+            generate a C++ equivalent that can be serialised to, or constructed from a
+            <ref id="fudgemsg">FudgeMsg</ref>. The structure specification grammar is
+            a cut down version of <ref id="fudgeproto">FudgeProto</ref>. The differences
+            between the offical and the support grammar are explained in the
+            <bold>PROTO LANGUAGE NOTES</bold> section below.
+        </paragraph>
+        <paragraph>
+            In typical usage, the generated files will be written to a different
+            directory from the proto files; for example:
+            <indent>
+                <code>
+                    simplefudgeproto -t ../builddir -l cpp some_proto_file.proto
+                </code>
+            </indent>
+        </paragraph>
+    </section>
+
+    <section title="OPTIONS">
+        <options>
+            <option name="-h,--help"> Display the usage information.</option>
+            <option name="-v,--version">Display the version information.</option>
+            <option name="-V,--verbose">Generate verbose output while running.</option>
+            <option name="-l,--language">
+                Programming language in which to generate code. Currently supports only
+                <quote>cpp</quote>, which produces C++ code.
+            </option>
+            <option name="-t,--target">
+                Target directory for generated files. If absent, defaults to the
+                current working directory.
+            </option>
+            <option name="-a,--alias">
+                <paragraph>
+                    Takes two namespaces (or namespace fragments) - separated by a
+                    single colon - and replaces occurances of the first namespace with
+                    the second. Note that this affects the generated code only, the wire
+                    format will still use the original namespaces. The first namespace
+                    will only be matched against the beginning of a potentially
+                    replaceable namespace.
+                </paragraph>
+                <paragraph>
+                    This option may be specified multiple times.
+                </paragraph>
+            </option>
+            <option name="-p,--prefix">
+                Takes a namespace and prepends it to all top-level namespaces. The
+                prefix is applied after any aliases. Like aliases only the generated
+                code is changed, the wire format will use the original namespaces.
+            </option>
+            <option name="-u,--unsafe">
+                By default the generated code will check the class type field (a string
+                field with ordinal zero) when decoding a Fudge message. If this option
+                is set the check will be omitted from all generated classes. The field
+                will still be included in any encoded files however.
+            </option>
+        </options>
+    </section>
+
+    <section title="BUGS">
+        Almost certainly. See the <italic>TODO</italic> file for a list of future
+        changes/improvements.
+    </section>
+
+    <section title="LICENSE">
+        <paragraph>
+            Licensed under the Apache License, Version 2.0 (the <quote>License</quote>);
+            you may not use this file except in compliance with the License. You may
+            obtain a copy of the License at.
+        <indent>
+            http://www.apache.org/licenses/LICENSE-2.0
+        </indent>
+        </paragraph>
+        <paragraph>
+            Unless required by applicable law or agreed to in writing, software
+            distributed under the License is distributed on an <quote>AS IS</quote>
+            BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+            implied. See the License for the specific language governing permissions
+            and limitations under the License.
+        </paragraph>
+    </section>
+
+    <section title="PROTO LANGUAGE GRAMMAR">
+        <paragraph>
+            This is a description of the <bold>FudgeProto</bold> language as
+            supported by <italic>simplefudgeproto</italic>.
+        </paragraph>
+        <paragraph>
+            A proto file contains one of more message definitions and references to
+            external message defintions, contained within (optional) namespaces.
+            Each of the message definitions will be used to generate a type in the
+            target language.
+        </paragraph>
+        <deflist>
+            <defheader><bold>namespace</bold> IDENT { ... }</defheader>
+            <defbody>
+                <paragraph>
+                    One or more namespaces may be used to wrap message definitions.
+                    Depending on the target language these will be applied to the
+                    generated messages in the idiomatic way (e.g. as actual namespaces
+                    in C++). Multiple identifiers may be used in a single namespace
+                    definition, separated by periods.
+                </paragraph>
+                <paragraph>
+                    For example, the following namespace definitions are identical:
+                    <code>
+                        namespace toplevel {
+                            namespace midlevel {
+                                namespace lowlevel {
+                                    ...
+                                }
+                            }
+                        }
+
+                        namespace toplevel.midlevel.lowlevel {
+                            ...
+                        }
+                    </code>
+                </paragraph>
+            </defbody>
+
+            <defheader>
+                <bold>message</bold> IDENT [<bold>extends</bold> IDENT[, ...]] { ... }
+            </defheader>
+            <defbody>
+                <paragraph>
+                    A proto-file should contain one or more message definitions. A
+                    message definition should contain one or more field defintions.
+                    Each message definition will map to a single class/structure in
+                    the generated code. A message may inherit from one or more other
+                    message defintions, either defined within the same proto file or
+                    referenced using an <bold>extern</bold> statement. Circular
+                    inheritance structures are not supported!
+                </paragraph>
+                <paragraph>
+                    The order in which the messages are definited/referenced within a
+                    file is not important.
+                </paragraph>
+                <paragraph>
+                    A simple inheritance structure:
+                    <code>
+                        message Vehicle {
+                            ...
+                        }
+
+                        message PoweredVehicle extends Vehicle {
+                            ...
+                        }
+
+                        message Truck extends PoweredVehicle,
+                                              Wheeled {
+                            ...
+                        }
+
+                        message Wheeled {
+                            ...
+                        }
+                    </code>
+                </paragraph>
+            </defbody>
+
+            <defheader><bold>extern message</bold> IDENT;</defheader>
+            <defbody>
+                <paragraph>
+                    A reference to a message defintion from an external file. Should
+                    be in the same namespace as the original file defintion.
+                    <code>
+                        === FILE 1 ===
+                        namespace some.name {
+                            message ExampleMessage {
+                                ...
+                            }
+                        }
+
+                        === FILE 2 ===
+                        namespace some {
+                            namespace name {
+                                extern message ExampleMessage;
+                            }
+                        }
+
+                        message AnotherMessage
+                        {
+                            required exampleMessage some.name.ExampleMessage;
+                            ...
+                        }
+                    </code>
+                </paragraph>
+            </defbody>
+
+            <defheader>
+                [MODIFIER[, ...] TYPE [ARRAYDEFS] IDENT[=ORDINAL] [\[<bold>default</bold>=VALUE\]];
+            </defheader>
+            <defbody>
+                <paragraph>
+                    Message defintions should contain one or more field definitions.
+                    At the very minimum a field definition should contain a type and
+                    a name. This will produce an optional field with no ordinal or
+                    default value. Field names must be unique within the message, they
+                    are used as the member name within the generated code. An ordinal
+                    is not required, but if one is provided it should be unique within
+                    the message and non-zero.
+                </paragraph>
+                <paragraph>
+                    Default values can be provided for non-array, primitive types. In
+                    the case of <bold>string</bold> fields, the value should be
+                    contained within double-quotes. Standard C style character escaping
+                    is supported.
+                    <code>
+                        required int defaultInt [default=123];
+                        optional float ordinalFloat = 1 [default = 1.23];
+                        string defaultString [default="123"];
+                    </code>
+                </paragraph>
+                <paragraph>
+                    Array definitions are suffixes to the type that specifiy one or
+                    more dimensions; where each dimension is either unbounded (empty
+                    square-brackets) or of a fixed size (size within square brackets).
+                    The dimensions are ordered from inner-most to outer-most; so an
+                    array of integer pairs would be <quote>int[2][]</quote>.
+                    <code>
+                        required double[4][4] projectionMatrix;
+                        string[] stringArrayWithOrdinal = 5;
+                        optional long[2][] coordinates;
+                    </code>
+                </paragraph>
+                <paragraph>
+                    Supported types and modifiers are listed in the next section.
+                </paragraph>
+            </defbody>
+
+            <defheader><bold>enum</bold> IDENT { [IDENT [=VALUE][; ...];] }"</defheader>
+            <defbody>
+                <paragraph>
+                    C style enums are supported. Unless explicitly set, each element's
+                    value will be one greater than that of the preceding; starting from
+                    zero. Any valid integer may be used as a value.
+                    <code>
+                        enum TestEnum {
+                            FirstValue;        // = 0
+                            SecondValue;       // = 1
+                            ThirdValue = -123;
+                            FourthValue;       // = -122
+                        }
+                    </code>
+                </paragraph>
+            </defbody>
+
+            <defheader>// Comment</defheader>
+            <defbody>
+                Single line comment. All text until the end of the current line is
+                ignored by the parser.
+            </defbody>
+
+            <defheader>/* Comment ... */</defheader>
+            <defbody>
+                Multi line comment. All text between the markers is ignored by the
+                parser. Multi line comments should not be nested!
+            </defbody>
+        </deflist>
+    </section>
+
+    <section title="PROTO LANGUAGE TYPES / MODIFIERS">
+        <paragraph>
+            All supported Fudge types are available in <italic>simplefudgeproto</italic>,
+            along with any user types (messages or enums) declared/referenced within the
+            proto file. User types can be referenced using either relative or absolute
+            namespaces (with each element of the namespace separated by periods).
+        </paragraph>
+        <paragraph>
+            Built-in types:
+        </paragraph>
+        <bltlist>
+            <bltpoint>
+                <bold>bool</bold> / <bold>boolean</bold> :
+                Boolean value, either <italic>FUDGE_TRUE</italic> or
+                <italic>FUDGE_FALSE</italic>.
+            </bltpoint>
+            <bltpoint>
+                <bold>byte</bold> / <bold>int8</bold> :
+                8 bit signed integer.
+            </bltpoint>
+            <bltpoint>
+                <bold>short</bold> / <bold>int16</bold> :
+                16 bit signed integer.
+            </bltpoint>
+            <bltpoint>
+                <bold>int</bold> / <bold>int32</bold> :
+                32 bit signed integer.
+            </bltpoint>
+            <bltpoint>
+                <bold>long</bold> / <bold>int64</bold> :
+                64 bit signed integer.
+            </bltpoint>
+            <bltpoint>
+                <bold>float</bold> :
+                32 bit floating point.
+            </bltpoint>
+            <bltpoint>
+                <bold>double</bold> :
+                64 bit floating point.
+            </bltpoint>
+            <bltpoint>
+                <bold>string</bold> :
+                Unicode string.
+            </bltpoint>
+            <bltpoint>
+                <bold>date</bold> :
+                A variable precision date.
+            </bltpoint>
+            <bltpoint>
+                <bold>time</bold> :
+                A variable precision time.
+            </bltpoint>
+            <bltpoint>
+                <bold>datetime</bold> :
+                Combination of <bold>date</bold> and <bold>time</bold>.
+            </bltpoint>
+        </bltlist>
+        <paragraph>
+            All types can be made in to array types using the array dimension suffix
+            (see previous section).
+        </paragraph>
+        <paragraph>
+            A subset of the full <bold>FudgeProto</bold> field modifier set is
+            supported by <italic>simplefudgeproto</italic>. Currently this is limited
+            to two modifiers:
+        </paragraph>
+        <deflist>
+            <defheader><bold>required</bold></defheader>
+            <defbody>
+                The field must have a value. Primitive types will default to zero/empty
+                and arrays will default to empty. However message types will default to
+                unset and so must be set before attempted to encode the message type.
+            </defbody>
+
+            <defheader><bold>optional</bold></defheader>
+            <defbody>
+                The field may be left unset, if this is the case it will not be present
+                in the encoded FudgeMsg. By default optional fields are in an unset set,
+                unless a default value has been provided; if a default value is present
+                the field will be initialised as set (containing said value).
+            </defbody>
+        </deflist>
+        <paragraph>
+            If no modifiers are provided, the field is considered
+            <quote>optional</quote>.
+        </paragraph>
+    </section>
+
+    <section title="PROTO LANGUAGE EXAMPLE">
+        <paragraph>
+            Below is a <italic>simplefudgeproto</italic> compatible message definition:
+            <code>
+                // Both C++ style single line ...
+                /* ... and C style multi-line comments
+                 * are supported.
+                 */
+                namespace example
+                {
+                    namespace elsewhere
+                    {
+                        extern msg externalMessage;
+                    }
+
+                    message localMessage
+                    {
+                        int[8] arrayOfInts;
+                        string stringWithOrdinalAndDefault = 2 [default="Some String"];
+                        required elsewhere.externalMessage theExtMessage;
+                    }
+
+                    message coordMessage
+                    {
+                        required double [3][] threeDimensionalCoords;
+                    }
+
+                    message superMessage extends localMessage, example.coordMessage
+                    {
+                        // All fields are inherited from localMessage
+                        // and coordMessage.
+                    }
+                }
+            </code>
+        </paragraph>
+    </section>
+
+    <section title="PROTO LANGUAGE NOTES">
+        <paragraph>
+            Differences between support grammar and that specified on the
+            <ref id="fudgeproto">FudgeProto</ref> wiki:
+        </paragraph>
+        <bltlist>
+            <bltpoint>
+                No support for taxonomies <quote>taxonomy</quote> keyword is not
+                currently reserved but should not be used as a
+                namespace/message/field name.
+            </bltpoint>
+            <bltpoint>
+                Language specific bindings are not supported. The <quote>binding</quote>
+                is not reserved and will not be supported by future implementations).
+            </bltpoint>
+            <bltpoint>
+                Message fields must have names. This is not required by the
+                specification (an ordinal may be used as an alternative to a name) but
+                is by <italic>simplefudgeproto</italic>; as the field name is used to
+                determine the corresponding member name in the generated code. Field
+                ordinals are supported, but only in tandem with a field name.
+            </bltpoint>
+            <bltpoint>
+                The <quote>repeated</quote> keyword is unsupported; it is a keyword
+                but the parser will exit with an error if it's encountered. For
+                multiple values within the same named field use arrays.
+            </bltpoint>
+            <bltpoint>
+                The <quote>readonly</quote> and <quote>mutable</quote> are ignored.
+                They are keywords and will be parsed without error; but will have
+                no effect on the generated code. All fields will have both a getter
+                and a setter.
+            </bltpoint>
+        </bltlist>
+        <paragraph>
+            This may change in future versions of <italic>simplefudgeproto</italic>.
+        </paragraph>
+    </section>
+
+    <section title="AUTHOR">
+        Copyright (C) 2011, Vrai Stacey (vrai.stacey@gmail.com)
+    </section>
+
+    <references title="NOTES">
+        <reference id="fudgemsg"
+                   name="FudgeMsg specification"
+                   href="http://fudgemsg.org/" />
+        <reference id="fudgeproto"
+                   name="FudgeProto Wiki"
+                   href="http://wiki.fudgemsg.org/display/FDG/Fudge+Proto" />
+    </references>
+
+</manpage>
+

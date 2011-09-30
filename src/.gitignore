@@ -9,3 +9,4 @@ protoparser.h
 protolexer.cc
 simplefudgeproto
 *.dSYM
+simplefudgeproto.1

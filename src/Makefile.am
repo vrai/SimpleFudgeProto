@@ -83,11 +83,13 @@ simplefudgeproto_SOURCES = simplefudgeproto_main.cpp
 simplefudgeproto_LDADD	 = libsimplefudgeproto.a
 
 clean-local:
-	$(RM) protolexer.cc protoparser.h protoparser.cc
+	$(RM) protolexer.cc protoparser.h protoparser.cc simplefudgeproto.1
 
 dist-hook:
 	for file in $(BUILT_SOURCES) $(noinst_LIBRARIES); do  \
 	    $(RM) -f $(distdir)/$$file;	  \
 	done
 
+simplefudgeproto.1:
+	$(top_srcdir)/scripts/manbuilder.py -i simplefudgeproto.xml -o simplefudgeproto.1 -f nroff
 

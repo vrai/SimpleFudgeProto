@@ -10,3 +10,4 @@ config.log
 config.status
 config/ylwrap
 Makefile
+simplefudgeproto-*.tar.*
