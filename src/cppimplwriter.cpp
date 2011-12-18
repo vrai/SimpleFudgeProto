@@ -363,7 +363,7 @@ void cppimplwriter::outputCollectionEncoder ( const std::string & targetvar,
 
         // Loop over elements in list, simple elements go in as fields, complex ones as messages
         m_output << generateIndent ( ) << "for (size_t index" << index << " (0); index" << index
-                 << " < " << sourcevar << ".size ( ); ++index" << index << ")" << std::endl
+                 << " < " << sourcevar << ".size (); ++index" << index << ")" << std::endl
                  << generateIndent ( ) << "{" << std::endl;
         ++m_depth;
 
@@ -378,13 +378,23 @@ void cppimplwriter::outputCollectionEncoder ( const std::string & targetvar,
         }
         else if ( field.type ( ).isComplex ( ) )
         {
-            // Complex element needs to be encoded in to a submessage, which is added to the target
+            // Complex element needs to be encoded in to a submessage, which is added to the
+            // target. Null pointers are represented as identity values.
             const std::string subvarname ( "submsg_" + getIdLeaf ( field ) ),
-                              indent ( generateIndent ( ) );
+                              outerindent ( generateIndent ( ) );
+            ++m_depth;
+            const std::string innerindent ( generateIndent ( ) );
 
-            m_output << indent << "::fudge::message " << subvarname << " (" << namebuf.str ( )
-                               << "->asFudgeMessage ( ));" << std::endl
-                     << indent << targetbuf.str ( ) << ".addField (" << subvarname << ");" << std::endl;
+            m_output << outerindent << "if (" << namebuf.str ( ) << ")" << std::endl
+                     << outerindent << "{" << std::endl
+                     << innerindent << "::fudge::message " << subvarname << " (" << namebuf.str ( )
+                                    << "->asFudgeMessage ());" << std::endl
+                     << innerindent << targetbuf.str ( ) << ".addField (" << subvarname << ");" << std::endl
+                     << outerindent << "}" << std::endl
+                     << outerindent << "else" << std::endl
+                     << innerindent << targetbuf.str ( ) << ".addField ();" << std::endl;
+
+            --m_depth;
         }
         else
         {
@@ -564,10 +574,21 @@ void cppimplwriter::outputCollectionDecoder ( const std::string & sourcevar,
         }
         else if ( field.type ( ).isComplex ( ) )
         {
-            m_output << generateIndent ( ) << targetbuf.str ( ) << " = new " << generateTypeName ( field.type ( ) )
-                                           << ";" << std::endl
-                     << generateIndent ( ) << targetbuf.str ( ) << "->fromFudgeMessage (" << fieldname
-                                           << ".getMessage ());" << std::endl;
+            const std::string outerindent ( generateIndent ( ) );
+            ++m_depth;
+            const std::string innerindent ( generateIndent ( ) );
+
+            m_output << outerindent << "if (" << fieldname << ".type () == FUDGE_TYPE_INDICATOR)" << std::endl
+                     << innerindent << targetbuf.str ( ) << " = 0;" << std::endl
+                     << outerindent << "else" << std::endl
+                     << outerindent << "{" << std::endl
+                     << innerindent << targetbuf.str ( ) << " = new " << generateTypeName ( field.type ( ) )
+                                    << ";" << std::endl
+                     << innerindent << targetbuf.str ( ) << "->fromFudgeMessage (" << fieldname
+                                    << ".getMessage ());" << std::endl
+                     << outerindent << "}" << std::endl;
+
+            --m_depth;
         }
         else
         {

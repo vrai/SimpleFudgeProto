@@ -16,7 +16,8 @@ TESTS = test_identifiermutator	\
 	test_parser		\
 	test_flatmessage	\
 	test_nestedmessage	\
-	test_safemessage
+	test_safemessage	\
+	test_arraymessage
 
 check_PROGRAMS = $(TESTS)
 
@@ -60,6 +61,12 @@ test_safemessage_SOURCES = built_safe_safemessageone.cpp	\
 			   $(FRAMEWORK_SOURCE)
 test_safemessage_LDADD = $(top_builddir)/src/libsimplefudgeproto.a -lfudgecpp
 
+test_arraymessage_SOURCES = built_array_arraymessage.cpp	\
+			    built_array_elementmessage.cpp	\
+			    test_arraymessage.cpp		\
+			    $(FRAMEWORK_SOURCE)
+test_arraymessage_LDADD = $(top_builddir)/src/libsimplefudgeproto.a -lfudgecpp
+
 # Build rules for generated code
 PROTO_GENERATOR = $(top_srcdir)/src/simplefudgeproto -l cpp
 
@@ -81,6 +88,10 @@ built_unsafe_safemessageone.cpp:
 	$(PROTO_GENERATOR) -u -a built.safe:built.unsafe ./test_files/safe.proto
 built_unsafe_safemessagetwo.cpp:
 	$(PROTO_GENERATOR) -u -a built.safe:built.unsafe ./test_files/safe.proto
+built_array_elementmessage.cpp:
+	$(PROTO_GENERATOR) ./test_files/array.proto
+built_array_arraymessage.cpp:
+	$(PROTO_GENERATOR) ./test_files/array.proto
 
 clean-local:
 	$(RM) -f *.log
