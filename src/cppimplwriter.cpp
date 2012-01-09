@@ -103,7 +103,13 @@ void cppimplwriter::classFields ( const messagedef & message )
     m_output << "}" << std::endl
              << std::endl
              << path << "::" << name << " (const ::fudge::message & source)" << std::endl
-             << "{" << std::endl
+             << "{" << std::endl;
+    ++m_depth;
+    std::for_each ( message.fields ( ).begin ( ),
+                    message.fields ( ).end ( ),
+                    std::bind1st ( std::mem_fun ( &cppimplwriter::outputMemberInitialiser ), this ) );
+    --m_depth;
+    m_output << std::endl
              << s_indent << "fromFudgeMessage (source);" << std::endl
              << "}" << std::endl
              << std::endl;

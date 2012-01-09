@@ -17,7 +17,8 @@ TESTS = test_identifiermutator	\
 	test_flatmessage	\
 	test_nestedmessage	\
 	test_safemessage	\
-	test_arraymessage
+	test_arraymessage	\
+	test_optobjects
 
 check_PROGRAMS = $(TESTS)
 
@@ -67,6 +68,12 @@ test_arraymessage_SOURCES = built_array_arraymessage.cpp	\
 			    $(FRAMEWORK_SOURCE)
 test_arraymessage_LDADD = $(top_builddir)/src/libsimplefudgeproto.a -lfudgecpp
 
+test_optobjects_SOURCES = built_optobjects_inner.cpp		\
+			  built_optobjects_outer.cpp		\
+			  test_optobjectsmessage.cpp		\
+			  $(FRAMEWORK_SOURCE)
+test_optobjects_LDADD   = $(top_builddir)/src/libsimplefudgeproto.a -lfudgecpp
+
 # Build rules for generated code
 PROTO_GENERATOR = $(top_srcdir)/src/simplefudgeproto -l cpp
 
@@ -92,6 +99,10 @@ built_array_elementmessage.cpp:
 	$(PROTO_GENERATOR) ./test_files/array.proto
 built_array_arraymessage.cpp:
 	$(PROTO_GENERATOR) ./test_files/array.proto
+built_optobjects_inner.cpp:
+	$(PROTO_GENERATOR) ./test_files/optional_objects.proto
+built_optobjects_outer.cpp:
+	$(PROTO_GENERATOR) ./test_files/optional_objects.proto
 
 clean-local:
 	$(RM) -f *.log
