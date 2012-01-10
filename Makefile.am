@@ -14,7 +14,7 @@
 
 ACLOCAL_AMFLAGS = -I m4
 
-EXTRA_DIST = autogen.sh configure misc
+EXTRA_DIST = autogen.sh configure misc scripts
 SUBDIRS = src tests
 
 DIST_SUBDIRS = src tests

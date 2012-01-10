@@ -17,7 +17,7 @@ noinst_LIBRARIES = libsimplefudgeproto.a
 
 man1_MANS = simplefudgeproto.1
 
-EXTRA_DIST = simplefudgeproto.1
+EXTRA_DIST = simplefudgeproto.xml
 
 AM_YFLAGS = -d
 AM_LFLAGS =
