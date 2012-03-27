@@ -18,7 +18,8 @@ TESTS = test_identifiermutator	\
 	test_nestedmessage	\
 	test_safemessage	\
 	test_arraymessage	\
-	test_optobjects
+	test_optobjects		\
+	test_deepinheritance
 
 check_PROGRAMS = $(TESTS)
 
@@ -74,6 +75,13 @@ test_optobjects_SOURCES = built_optobjects_inner.cpp		\
 			  $(FRAMEWORK_SOURCE)
 test_optobjects_LDADD   = $(top_builddir)/src/libsimplefudgeproto.a -lfudgecpp
 
+test_deepinheritance_SOURCES = built_basemessage.cpp		\
+			       built_intermediatemessage.cpp	\
+			       built_topmessage.cpp		\
+			       test_deepinheritance.cpp		\
+			       $(FRAMEWORK_SOURCE)
+test_deepinheritance_LDADD   = $(top_builddir)/src/libsimplefudgeproto.a -lfudgecpp
+
 # Build rules for generated code
 PROTO_GENERATOR = $(top_srcdir)/src/simplefudgeproto -l cpp
 
@@ -103,6 +111,12 @@ built_optobjects_inner.cpp:
 	$(PROTO_GENERATOR) ./test_files/optional_objects.proto
 built_optobjects_outer.cpp:
 	$(PROTO_GENERATOR) ./test_files/optional_objects.proto
+built_basemessage.cpp:
+	$(PROTO_GENERATOR) ./test_files/deep_inheritance.proto
+built_intermediatemessage.cpp:
+	$(PROTO_GENERATOR) ./test_files/deep_inheritance.proto
+built_topmessage.cpp:
+	$(PROTO_GENERATOR) ./test_files/deep_inheritance.proto
 
 clean-local:
 	$(RM) -f *.log

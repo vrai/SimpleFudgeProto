@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011 - 2011, Vrai Stacey.
+ * Copyright (C) 2011 - 2012, Vrai Stacey.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,7 @@ class cppimplwriter : public cppwriter
                                              size_t index );
         void outputMemberSetterBody ( const fielddef * field );
         void outputEncoderWrapper ( const messagedef & message );
+        void outputEncoderParents ( const messagedef & message );
         void outputEncoderField ( const fielddef * field );
         void outputEncoderFieldAdd ( const std::string & targetvar,
                                      const std::string & sourcevar,

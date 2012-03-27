@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011 - 2011, Vrai Stacey.
+ * Copyright (C) 2011 - 2012, Vrai Stacey.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -138,6 +138,7 @@ void cppimplwriter::classFields ( const messagedef & message )
     m_output << "void " << path << "::toFudgeMessage (::fudge::message & target) const" << std::endl
             << "{" << std::endl;
     ++m_depth;
+    outputEncoderParents ( message );
     std::for_each ( message.fields ( ).begin ( ),
                     message.fields ( ).end ( ),
                     std::bind1st ( std::mem_fun ( &cppimplwriter::outputEncoderField ), this ) );
@@ -269,13 +270,20 @@ void cppimplwriter::outputEncoderWrapper ( const messagedef & message )
                        << "\"), ::fudge::message::noname, 0);" << std::endl
              << std::endl;
 
+    m_output << indent << "toFudgeMessage (target);" << std::endl
+             << std::endl
+             << generateIndent ( ) << "return target;" << std::endl;
+}
+
+void cppimplwriter::outputEncoderParents ( const messagedef & message )
+{
+    const std::string indent ( generateIndent ( ) );
     for ( size_t index ( 0 ); index < message.parents ( ).size ( ); ++index )
         m_output << indent << generateIdString ( *message.parents ( ) [ index ] )
                            << "::toFudgeMessage (target);" << std::endl;
 
-    m_output << indent << "toFudgeMessage (target);" << std::endl
-             << std::endl
-             << generateIndent ( ) << "return target;" << std::endl;
+    if ( message.parents ( ).size ( ) )
+        m_output << std::endl;
 }
 
 void cppimplwriter::outputEncoderField ( const fielddef * field )

@@ -26,7 +26,7 @@ using namespace built;
 
 namespace
 {
-    static const fudge::string defaultDescription ( "Insert description here: \"Escape sequences, \'\\\n\"" );
+    static const std::string defaultDescription ( "Insert description here: \"Escape sequences, \'\\\n\"" );
 }
 
 DEFINE_TEST( FlatOne )
@@ -38,7 +38,7 @@ DEFINE_TEST( FlatOne )
 
     TEST_EQUALS( message->identifier ( ), -1 );
     TEST_EQUALS_TRUE( message->description ( ) );
-    TEST_EQUALS( ( *message->description ( ) ).convertToStdString ( ), defaultDescription.convertToStdString ( ) );
+    TEST_EQUALS( ( *message->description ( ) ).convertToStdString ( ), defaultDescription );
 
     message->setidentifier ( sourceIdentifier );
     message->setdescription ( sourceDescription );
@@ -71,7 +71,7 @@ DEFINE_TEST( FlatOne )
     // Check the content
     TEST_EQUALS( message->identifier ( ), sourceIdentifier );
     TEST_EQUALS_TRUE( message->description ( ) );
-    TEST_EQUALS( ( *message->description ( ) ).convertToStdString ( ), defaultDescription.convertToStdString ( ) );
+    TEST_EQUALS( ( *message->description ( ) ).convertToStdString ( ), defaultDescription );
 
     message.reset ( );
 END_TEST
@@ -196,7 +196,7 @@ DEFINE_TEST( CombinedFlatMessage )
 
     TEST_EQUALS( message->identifier ( ), -1 );
     TEST_EQUALS_TRUE( message->description ( ) );
-    TEST_EQUALS( ( *message->description ( ) ).convertToStdString ( ), defaultDescription.convertToStdString ( ) );
+    TEST_EQUALS( ( *message->description ( ) ).convertToStdString ( ), defaultDescription );
     TEST_EQUALS_TRUE( message->coords ( ).empty ( ) );
     TEST_EQUALS_TRUE( ! message->integers ( ) );
     TEST_EQUALS_TRUE( ! message->matrix ( ) );

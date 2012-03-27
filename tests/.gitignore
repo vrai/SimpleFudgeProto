@@ -11,3 +11,4 @@ test_nestedmessage
 test_safemessage
 test_arraymessage
 test_optobjects
+test_deepinheritance
