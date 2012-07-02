@@ -19,7 +19,8 @@ TESTS = test_identifiermutator	\
 	test_safemessage	\
 	test_arraymessage	\
 	test_optobjects		\
-	test_deepinheritance
+	test_deepinheritance	\
+	test_opaquemessage
 
 check_PROGRAMS = $(TESTS)
 
@@ -82,6 +83,11 @@ test_deepinheritance_SOURCES = built_basemessage.cpp		\
 			       $(FRAMEWORK_SOURCE)
 test_deepinheritance_LDADD   = $(top_builddir)/src/libsimplefudgeproto.a -lfudgecpp
 
+test_opaquemessage_SOURCES = built_opaqueholdermessage.cpp	\
+			     test_opaquemessage.cpp		\
+			     $(FRAMEWORK_SOURCE)
+test_opaquemessage_LDADD   = $(top_builddir)/src/libsimplefudgeproto.a -lfudgecpp
+
 # Build rules for generated code
 PROTO_GENERATOR = $(top_srcdir)/src/simplefudgeproto -l cpp
 
@@ -117,6 +123,8 @@ built_intermediatemessage.cpp:
 	$(PROTO_GENERATOR) ./test_files/deep_inheritance.proto
 built_topmessage.cpp:
 	$(PROTO_GENERATOR) ./test_files/deep_inheritance.proto
+built_opaqueholdermessage.cpp:
+	$(PROTO_GENERATOR) ./test_files/opaque.proto
 
 clean-local:
 	$(RM) -f *.log

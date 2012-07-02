@@ -117,6 +117,7 @@ class Test
 {
     public:
         Test ( const std::string & name );
+        virtual ~Test ( );
         int run ( const Suite & suite );
         virtual int test ( ) = 0;
         const std::string & name ( ) const;

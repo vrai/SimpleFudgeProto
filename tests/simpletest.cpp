@@ -120,6 +120,10 @@ Test::Test ( const std::string & name )
 {
 }
 
+Test::~Test ( )
+{
+}
+
 int Test::run ( const Suite & suite )
 {
     m_suite = suite.name ( );

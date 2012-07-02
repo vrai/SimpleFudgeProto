@@ -11,3 +11,4 @@ config.status
 config/ylwrap
 Makefile
 simplefudgeproto-*.tar.*
+*.DS_Store
