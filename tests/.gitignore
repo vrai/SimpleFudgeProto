@@ -3,6 +3,7 @@
 *.log
 *.dat
 *.dSYM
+*.trs
 built_*.?pp
 test_flatmessage
 test_identifiermutator

@@ -1,6 +1,6 @@
 %{
     #include "ast.hpp"
-    #include "protoparser.h"
+    #include "protoparser.hh"
     #include "memoryutil.hpp"
     #include <list>
     #include <cstdio>

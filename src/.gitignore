@@ -5,7 +5,7 @@ stamp-h1
 *.a
 .deps
 protoparser.cc
-protoparser.h
+protoparser.hh
 protolexer.cc
 simplefudgeproto
 *.dSYM

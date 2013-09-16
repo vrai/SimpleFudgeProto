@@ -76,14 +76,14 @@ libsimplefudgeproto_a_SOURCES = ast.cpp			\
 				stage.cpp
 
 BUILT_SOURCES = protolexer.cc 	\
-		protoparser.h 	\
+		protoparser.hh 	\
 		protoparser.cc
 
 simplefudgeproto_SOURCES = simplefudgeproto_main.cpp
 simplefudgeproto_LDADD	 = libsimplefudgeproto.a
 
 clean-local:
-	$(RM) protolexer.cc protoparser.h protoparser.cc simplefudgeproto.1
+	$(RM) protolexer.cc protoparser.hh protoparser.cc simplefudgeproto.1
 
 dist-hook:
 	for file in $(BUILT_SOURCES) $(noinst_LIBRARIES); do  \
