@@ -22,7 +22,7 @@ AC_CONFIG_HEADER(src/config.h)
 AC_CONFIG_FILES([Makefile \
                  src/Makefile \
                  tests/Makefile])
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([1.12.1])
 
 ### Make sure we're in the right directory
 AC_CONFIG_SRCDIR(./src/protoparser.yy)
